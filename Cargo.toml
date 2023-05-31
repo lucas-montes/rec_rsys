@@ -7,7 +7,6 @@ categories = [
     "recommender system",
     "machine learning",
     "AI",
-    "ML",
     "statistics",
     "prabability",
 ]
@@ -20,6 +19,7 @@ include = [
 ]
 keywords = ["macros", "syn"]
 repository = "https://github.com/lucas-montes/rec_rsys"
+license = "MIT OR Apache-2.0"
 
 [features]
 default = []
