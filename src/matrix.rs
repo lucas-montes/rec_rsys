@@ -171,7 +171,7 @@ pub fn get_eigenvalues(matrix: &[Vec<f64>]) -> Vec<i32> {
     if matrix.iter().any(|row| row.len() != matrix.len()) {
         panic!("Input matrix is not square");
     }
-    let indentity_matrix: Vec<Vec<f64>> = vec![vec![0.0; matrix.len()]; matrix.len()];
+    let _indentity_matrix: Vec<Vec<f64>> = vec![vec![0.0; matrix.len()]; matrix.len()];
     for (index, row) in matrix.iter().enumerate() {
         for (index2, value) in row.iter().enumerate() {
             if index + index2 % 2 == 0 {
@@ -215,7 +215,7 @@ pub fn get_eigenvalues(matrix: &[Vec<f64>]) -> Vec<i32> {
 /// ### Where:
 /// * `x`: Is the eigenvector
 /// * `$A$`: Is the matrix
-pub fn get_eigenvectors(matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
+pub fn get_eigenvectors(_matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
     todo!()
 }
 
