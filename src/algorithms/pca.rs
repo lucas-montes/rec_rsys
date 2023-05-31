@@ -52,7 +52,7 @@ impl PCA {
         }
     }
 
-    pub fn fit(&mut self, x: &[Vec<f64>]) {
+    pub fn fit(&mut self, mut x: &[Vec<f64>]) {
         // Mean centering
         let centered_x = mean_along_axis(x, 0);
         x = &subtract_vector_from_matrix(&centered_x, &x);
@@ -65,7 +65,7 @@ impl PCA {
 
         // Sort eigenvectors
         let mut eigenvecs = transpose(&eigenvectors);
-        let mut idxs: Vec<usize> = (0..num_features).collect();
+        let mut idxs: Vec<usize> = (0..x[0].len()).collect();
         idxs.sort_by(|&i, &j| eigenvalues[j].partial_cmp(&eigenvalues[i]).unwrap());
         let sorted_eigenvalues = idxs.iter().map(|&i| eigenvalues[i]).collect::<Vec<f64>>();
         eigenvecs = idxs
@@ -76,7 +76,7 @@ impl PCA {
         // Store first n eigenvectors
         let components = eigenvecs[..self.n_components].to_vec();
 
-        self.mean = Some(mean);
+        self.mean = Some(centered_x);
         self.components = Some(components);
         self.sorted_eigenvalues = Some(sorted_eigenvalues);
     }
