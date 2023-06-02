@@ -26,6 +26,7 @@ pub fn euclidean_norm(vec: &Vec<f64>) -> f64 {
     vec.iter().map(|&x| x * x).sum::<f64>().sqrt()
 }
 
+/// TODO
 pub fn squared_diff_sum(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
     vec1.iter()
         .zip(vec2.iter())
@@ -33,6 +34,7 @@ pub fn squared_diff_sum(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
         .sum::<f64>()
 }
 
+/// TODO
 pub fn local_sort(v: &mut Vec<f64>) {
     v.sort_by(|x: &f64, y: &f64| x.total_cmp(y))
 }

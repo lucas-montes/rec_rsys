@@ -187,10 +187,12 @@ pub fn standard_deviation(data: &Vec<f64>) -> f64 {
     (sum_squared_deviations / data.len() as f64).sqrt()
 }
 
+/// TODO
 pub fn standard_deviation_pct(data: &Vec<f64>) -> f64 {
     (standard_deviation(data) / mean(data)) * 100_f64
 }
 
+#[doc = include_str!("../docs/statistics/median_abs_dev.md")]
 pub fn median_abs_dev(data: &Vec<f64>) -> f64 {
     let med: f64 = median(data);
     let abs_devs: Vec<f64> = data.iter().map(|&v| (med - v).abs()).collect();
@@ -199,6 +201,7 @@ pub fn median_abs_dev(data: &Vec<f64>) -> f64 {
     median(&abs_devs) * 1.4826
 }
 
+/// TODO
 pub fn median_abs_dev_pct(data: &Vec<f64>) -> f64 {
     (median_abs_dev(data) / median(data)) * 100_f64
 }

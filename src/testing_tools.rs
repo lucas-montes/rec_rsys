@@ -162,3 +162,38 @@ fn durations_to_f64s(durations: &Vec<Duration>) -> Vec<f64> {
         .map(|duration| duration.as_secs_f64())
         .collect()
 }
+
+pub fn test_implementation() {
+    // for v in [5, 6, 7, 8, 9, 10, 20] {
+    //     let mut matrix = Vec::new();
+    //     for _ in 0..v {
+    //         matrix.push(create_vector(v, -1000.0, 1000.0));
+    //     }
+
+    //     let m1: Vec<Vec<f64>> = matrix.clone();
+    //     let m2: Vec<Vec<f64>> = matrix.clone();
+    //     let _m3: Vec<Vec<f64>> = matrix.clone();
+    //     let _m4: Vec<Vec<f64>> = matrix.clone();
+    //     let _m5: Vec<Vec<f64>> = matrix.clone();
+
+    //     let functions: Vec<(&str, Rc<RefCell<dyn Fn()>>)> = vec![
+    //         (
+    //             "covariance",
+    //             Rc::new(RefCell::new(move || {
+    //                 covariance(&m1);
+    //             })),
+    //         ),
+    //         (
+    //             "covariance_matrix",
+    //             Rc::new(RefCell::new(move || {
+    //                 covariance_matrix(&m2);
+    //             })),
+    //         ),
+    //     ];
+    //     println!("------Execution for {:?}-------", v);
+    //     compare_execution_times(100, functions);
+    //     println!("---------------------------------");
+    //     println!("---------------------------------");
+    //     println!("---------------------------------");
+    // }
+}

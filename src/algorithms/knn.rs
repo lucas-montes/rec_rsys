@@ -1,3 +1,4 @@
+//! KNN
 use std::collections::HashMap;
 
 use crate::similarity::{cosine_similarity, euclidean_distance};
@@ -26,6 +27,7 @@ fn sort_and_trucate(mut best_matches: Vec<(f64, i8)>, reverse: bool, k: usize) -
     best_matches
 }
 
+/// KNN algorithm using the euclidean distance
 pub fn euclidean_knn(
     new_item: Vec<f64>,
     references: HashMap<i8, Vec<f64>>,
@@ -34,6 +36,7 @@ pub fn euclidean_knn(
     knn(new_item, references, k, euclidean_distance, false)
 }
 
+/// KNN algorithm using the cosine similarity
 pub fn cosine_knn(
     new_item: Vec<f64>,
     references: HashMap<i8, Vec<f64>>,

@@ -1,8 +1,10 @@
+//! A collection of funcitons to apply to matrices
 use std::collections::HashMap;
 
 use crate::statistics::mean as vec_mean;
 use rayon::prelude::*;
 
+/// Transpose a matrix
 pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
     let cols: usize = matrix[0].len();
 
@@ -23,6 +25,7 @@ pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
         .collect()
 }
 
+/// Transpose a matrix using f64 values
 pub fn transpose_64(matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
     let cols: usize = matrix[0].len();
 
@@ -37,6 +40,7 @@ pub fn transpose_64(matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
         .collect()
 }
 
+/// Calculate the mean of a matrix using f64 values
 pub fn mean(matrix: &[Vec<f64>]) -> f64 {
     let total_elements = matrix.len() * matrix[0].len();
     if total_elements == 0 {
@@ -46,6 +50,7 @@ pub fn mean(matrix: &[Vec<f64>]) -> f64 {
     }
 }
 
+/// Calculate the mean along the axis of a matrix using f64 values
 pub fn mean_along_axis(matrix: &[Vec<f64>], axis: usize) -> Vec<f64> {
     match axis {
         0 => (0..matrix[0].len())
@@ -225,7 +230,10 @@ mod tests {
 
     #[test]
     fn test_get_eigenvalues() {
-        assert_eq!(get_eigenvalues(&[vec![2, 2], vec![5, -1]]), 5,);
+        assert_eq!(
+            get_eigenvalues(&[vec![2.0, 2.0], vec![5.0, -1.0]]),
+            vec![5, -1]
+        );
     }
 
     #[test]

@@ -1,8 +1,9 @@
-pub struct User {
+//! Generic models to perform calculations
+struct User {
     pub items: Vec<Item>,
 }
 
-pub struct Item {
+struct Item {
     pub id: i16,
     pub rating: f64,
 }
