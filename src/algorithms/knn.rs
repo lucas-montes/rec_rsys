@@ -4,13 +4,31 @@ use std::collections::HashMap;
 use crate::similarity::{cosine_similarity, euclidean_distance};
 use crate::utils::sort_with_direction;
 
+/// KNN algorithm using the euclidean distance
+pub fn euclidean_knn(
+    new_item: Vec<f64>,
+    references: HashMap<i16, Vec<f64>>,
+    k: usize,
+) -> Vec<(f64, i16)> {
+    knn(new_item, references, k, euclidean_distance, false)
+}
+
+/// KNN algorithm using the cosine similarity
+pub fn cosine_knn(
+    new_item: Vec<f64>,
+    references: HashMap<i16, Vec<f64>>,
+    k: usize,
+) -> Vec<(f64, i16)> {
+    knn(new_item, references, k, cosine_similarity, true)
+}
+
 fn knn(
     new_input: Vec<f64>,
-    references: HashMap<i8, Vec<f64>>,
+    references: HashMap<i16, Vec<f64>>,
     k: usize,
     formula: impl Fn(&Vec<f64>, &Vec<f64>) -> f64,
     reverse: bool,
-) -> Vec<(f64, i8)> {
+) -> Vec<(f64, i16)> {
     sort_and_trucate(
         references
             .iter()
@@ -21,28 +39,10 @@ fn knn(
     )
 }
 
-fn sort_and_trucate(mut best_matches: Vec<(f64, i8)>, reverse: bool, k: usize) -> Vec<(f64, i8)> {
+fn sort_and_trucate(mut best_matches: Vec<(f64, i16)>, reverse: bool, k: usize) -> Vec<(f64, i16)> {
     sort_with_direction(&mut best_matches, |(a, _), (b, _)| a.total_cmp(b), reverse);
     best_matches.truncate(k);
     best_matches
-}
-
-/// KNN algorithm using the euclidean distance
-pub fn euclidean_knn(
-    new_item: Vec<f64>,
-    references: HashMap<i8, Vec<f64>>,
-    k: usize,
-) -> Vec<(f64, i8)> {
-    knn(new_item, references, k, euclidean_distance, false)
-}
-
-/// KNN algorithm using the cosine similarity
-pub fn cosine_knn(
-    new_item: Vec<f64>,
-    references: HashMap<i8, Vec<f64>>,
-    k: usize,
-) -> Vec<(f64, i8)> {
-    knn(new_item, references, k, cosine_similarity, true)
 }
 
 #[cfg(test)]
@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_cosine_knn() {
-        let mut refs: HashMap<i8, Vec<f64>> = HashMap::new();
+        let mut refs: HashMap<i16, Vec<f64>> = HashMap::new();
         refs.insert(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811]);
         refs.insert(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644]);
         refs.insert(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256]);
@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_euclidean_knn() {
-        let mut refs: HashMap<i8, Vec<f64>> = HashMap::new();
+        let mut refs: HashMap<i16, Vec<f64>> = HashMap::new();
         refs.insert(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811]);
         refs.insert(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644]);
         refs.insert(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256]);

@@ -10,6 +10,9 @@ publish:
 	make check
 	cargo publish
 
+docu:
+	RUSTDOCFLAGS="--html-in-header katex.html" cargo doc --no-deps --open
+
 patch:
 	python3 update_version.py patch
 

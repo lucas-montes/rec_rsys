@@ -68,11 +68,9 @@ pub fn rank_vector(vector: &Vec<f64>) -> Vec<f64> {
 /// ```
 /// let mut numbers = vec![4, 2, 8, 5, 1];
 ///
-/// // Sort in ascending order
 /// sort_with_direction(&mut numbers, |a, b| a.cmp(b), false);
 /// println!("Ascending order: {:?}", numbers);
 ///
-/// // Sort in descending order
 /// sort_with_direction(&mut numbers, |a, b| a.cmp(b), true);
 /// println!("Descending order: {:?}", numbers);
 /// ```
@@ -125,7 +123,7 @@ mod tests {
     fn test_squared_diff_sum() {
         assert_eq!(
             squared_diff_sum(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            2557.0,
+            287.0,
         );
     }
 
@@ -133,7 +131,7 @@ mod tests {
     fn test_rank_vector() {
         assert_eq!(
             rank_vector(&vec![3.0, 45.0, 7.0, 2.0]),
-            vec![3.0, 45.0, 7.0, 2.0],
+            vec![1.0, 3.0, 2.0, 0.0],
         );
     }
 }

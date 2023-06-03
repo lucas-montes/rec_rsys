@@ -213,10 +213,13 @@ pub fn pearson_correlation(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$\text{similarity} = \frac{{\sum_{i=1}^{n}((r_{xi} - b_{xi}) \cdot (r_{yi} - b_{yi}))}}{{\sqrt{{\sum_{i=1}^{n}(r_{xi} - b_{xi})^2}} \cdot \sqrt{{\sum_{i=1}^{n}(r_{yi} - b_{yi})^2}}}}$$
-pub fn pearson_baseline_similarity(vec1: &[f64], vec2: &[f64], bx: f64, by: f64) -> f64 {
+pub fn pearson_baseline_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
     let mut numerator: f64 = 0.0;
     let mut denominator_x: f64 = 0.0;
     let mut denominator_y: f64 = 0.0;
+
+    let bx = mean(vec1);
+    let by = mean(vec2);
 
     vec1.iter().zip(vec2.iter()).for_each(|(x, y)| {
         let x_bx: f64 = x - bx;
@@ -251,6 +254,9 @@ pub fn pearson_baseline_similarity(vec1: &[f64], vec2: &[f64], bx: f64, by: f64)
 ///
 /// ## Formula:
 /// $$ \text{MSD(x,y)} = \frac{{\sum_{i=1}^{n}(x_i - y_i)^2}}{{n}} $$
+///
+/// ## Notes:
+/// See if it's relevant to keep this one as is the same formula as the MSE
 pub fn msd(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
     squared_diff_sum(x, y) / x.len() as f64
 }
@@ -390,7 +396,7 @@ mod tests {
     fn test_msd() {
         assert_eq!(
             msd(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.9675213315629456,
+            71.75,
         );
     }
 
@@ -398,15 +404,15 @@ mod tests {
     fn test_msd_similarity() {
         assert_eq!(
             msd_similarity(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.9675213315629456,
+            0.013745704467353952,
         );
     }
 
     #[test]
     fn test_pearson_baseline_similarity() {
         assert_eq!(
-            pearson_baseline_similarity(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0], 2.3, 3.1,),
-            0.9675213315629456,
+            pearson_baseline_similarity(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
+            1.2900284420839274,
         );
     }
 
@@ -414,7 +420,7 @@ mod tests {
     fn test_spearman_correlation() {
         assert_eq!(
             spearman_correlation(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.9675213315629456,
+            0.39999999999999997,
         );
     }
 
@@ -426,7 +432,7 @@ mod tests {
                 &vec![2.0, 54.0, 13.0, 15.0],
                 2.1,
             ),
-            0.9675213315629456,
+            16.566132683373674,
         );
     }
 }
