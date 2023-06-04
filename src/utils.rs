@@ -45,14 +45,16 @@ pub fn local_sort(v: &mut Vec<f64>) {
 /// * `vector`: The vector of values.
 ///
 /// ## Returns:
-/// * A vector containing the ranks of the values.
-pub fn rank_vector(vector: &Vec<f64>) -> Vec<f64> {
+/// * Returns the indices that would sort an array.
+///
+/// ## Explanation:
+/// Perform an indirect sort along the given axis (-1).
+/// It returns an array of indices of the same shape as
+/// `vector` that index data along the given axis in sorted order.
+pub fn argsort(vector: &Vec<f64>) -> Vec<f64> {
     let mut indexed_vector: Vec<(usize, &f64)> = vector.iter().enumerate().collect();
     indexed_vector.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
-    indexed_vector
-        .iter()
-        .map(|(i, _)| *i as f64 + 1.0)
-        .collect()
+    indexed_vector.iter().map(|(i, _)| *i as f64).collect()
 }
 
 /// Sorts the elements in the given vector `vector` using the provided comparison function `compare_fn`,
@@ -128,10 +130,10 @@ mod tests {
     }
 
     #[test]
-    fn test_rank_vector() {
+    fn test_argsort() {
         assert_eq!(
-            rank_vector(&vec![3.0, 45.0, 7.0, 2.0]),
-            vec![1.0, 3.0, 2.0, 0.0],
+            argsort(&vec![3.0, 45.0, 7.0, 2.0]),
+            vec![3.0, 0.0, 2.0, 1.0],
         );
     }
 }

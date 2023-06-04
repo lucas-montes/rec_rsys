@@ -1,7 +1,7 @@
 //! # A collection of tools to compute similarities
 //!
 use super::statistics::mean;
-use super::utils::{dot, euclidean_norm, rank_vector, squared_diff_sum};
+use super::utils::{argsort, dot, euclidean_norm, squared_diff_sum};
 use std::collections::HashSet;
 
 /// # Jaccard Similarity
@@ -317,7 +317,11 @@ pub fn msd_similarity(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
 /// $$ \text{correlation} = 1 - \frac{{6 \sum_{i=1}^{n}(d_i)^2}}{{n(n^2 - 1)}} $$
 pub fn spearman_correlation(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
     let n: f64 = x.len() as f64;
-    1.0 - (6.0 * squared_diff_sum(&rank_vector(x), &rank_vector(y))) / (n * (n.powi(2) - 1.0))
+    1.0 - (6.0 * squared_diff_sum(&spearman_rank(x), &spearman_rank(y))) / (n * (n.powi(2) - 1.0))
+}
+
+fn spearman_rank(x: &Vec<f64>) -> Vec<f64> {
+    argsort(&argsort(x))
 }
 
 /// # Minkowski distance
@@ -420,7 +424,15 @@ mod tests {
     fn test_spearman_correlation() {
         assert_eq!(
             spearman_correlation(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.39999999999999997,
+            0.4,
+        );
+    }
+
+    #[test]
+    fn test_spearman_rank() {
+        assert_eq!(
+            spearman_rank(&vec![3.0, 45.0, 7.0, 2.0]),
+            vec![1.0, 3.0, 2.0, 0.0],
         );
     }
 
