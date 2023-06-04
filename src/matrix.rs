@@ -25,42 +25,42 @@ pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
         .collect()
 }
 
-/// Transpose a matrix using f64 values
-pub fn transpose_64(matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
+/// Transpose a matrix using f32 values
+pub fn transpose_64(matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
     let cols: usize = matrix[0].len();
 
     if cols < 90 {
         return (0..cols)
-            .map(|j: usize| matrix.iter().map(|row: &Vec<f64>| row[j]).collect())
+            .map(|j: usize| matrix.iter().map(|row: &Vec<f32>| row[j]).collect())
             .collect();
     }
     (0..cols)
         .into_par_iter()
-        .map(|j: usize| matrix.iter().map(|row: &Vec<f64>| row[j]).collect())
+        .map(|j: usize| matrix.iter().map(|row: &Vec<f32>| row[j]).collect())
         .collect()
 }
 
-/// Calculate the mean of a matrix using f64 values
-pub fn mean(matrix: &[Vec<f64>]) -> f64 {
+/// Calculate the mean of a matrix using f32 values
+pub fn mean(matrix: &[Vec<f32>]) -> f32 {
     let total_elements = matrix.len() * matrix[0].len();
     if total_elements == 0 {
         0.0 // Avoid division by zero for empty matrices
     } else {
-        matrix.iter().flatten().sum::<f64>() / total_elements as f64
+        matrix.iter().flatten().sum::<f32>() / total_elements as f32
     }
 }
 
-/// Calculate the mean along the axis of a matrix using f64 values
-pub fn mean_along_axis(matrix: &[Vec<f64>], axis: usize) -> Vec<f64> {
+/// Calculate the mean along the axis of a matrix using f32 values
+pub fn mean_along_axis(matrix: &[Vec<f32>], axis: usize) -> Vec<f32> {
     match axis {
         0 => (0..matrix[0].len())
             .map(|j: usize| {
-                matrix.iter().map(|row: &Vec<f64>| row[j]).sum::<f64>() / matrix.len() as f64
+                matrix.iter().map(|row: &Vec<f32>| row[j]).sum::<f32>() / matrix.len() as f32
             })
             .collect(),
         1 => matrix
             .iter()
-            .map(|row: &Vec<f64>| row.iter().sum::<f64>() / row.len() as f64)
+            .map(|row: &Vec<f32>| row.iter().sum::<f32>() / row.len() as f32)
             .collect(),
         _ => panic!("Use the mean instead of mean along axis"),
     }
@@ -83,19 +83,19 @@ pub fn mean_along_axis(matrix: &[Vec<f64>], axis: usize) -> Vec<f64> {
 /// The covariance measures the direction and magnitude of the linear relationship
 /// between two sets of data, x and y. It calculates the sum of the products of the deviations
 /// of each data point from their respective means, divided by the number of data points.
-pub fn covariance(data: &[Vec<f64>]) -> Vec<Vec<f64>> {
-    let means: Vec<f64> = data.iter().map(vec_mean).collect();
+pub fn covariance(data: &[Vec<f32>]) -> Vec<Vec<f32>> {
+    let means: Vec<f32> = data.iter().map(vec_mean).collect();
 
-    let mut covariance_matrix: Vec<Vec<f64>> = vec![vec![0.0; data[0].len()]; data[0].len()];
+    let mut covariance_matrix: Vec<Vec<f32>> = vec![vec![0.0; data[0].len()]; data[0].len()];
 
     for (i, row_i) in data.iter().enumerate() {
         for (j, row_j) in data.iter().enumerate().skip(i) {
-            let cov_ij: f64 = row_i
+            let cov_ij: f32 = row_i
                 .iter()
                 .zip(row_j.iter())
                 .map(|(&x, &y)| (x - means[i]) * (y - means[j]))
-                .sum::<f64>()
-                / (data.len() as f64 - 1.0); // Degrees of freedom correction
+                .sum::<f32>()
+                / (data.len() as f32 - 1.0); // Degrees of freedom correction
 
             covariance_matrix[i][j] = cov_ij;
             covariance_matrix[j][i] = cov_ij; // Symmetric element
@@ -135,14 +135,14 @@ pub fn covariance(data: &[Vec<f64>]) -> Vec<Vec<f64>> {
 /// ### Where:
 /// * `M_{ij}` represents the element at the `i`th row and `j`th column of the matrix `M`.
 /// * `v_j` represents the `j`th element of the vector `v`.
-pub fn subtract_vector_from_matrix(vector: &[f64], matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
+pub fn subtract_vector_from_matrix(vector: &[f32], matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
     matrix
         .iter()
         .map(|row| {
             row.iter()
                 .zip(vector.iter())
                 .map(|(&matrix_val, &vector_val)| matrix_val - vector_val)
-                .collect::<Vec<f64>>()
+                .collect::<Vec<f32>>()
         })
         .collect()
 }
@@ -171,12 +171,12 @@ pub fn subtract_vector_from_matrix(vector: &[f64], matrix: &[Vec<f64>]) -> Vec<V
 /// ### Where:
 /// * `$\lambda$`: Is the eigenvalue
 /// * `$A$`: Is the matrix
-pub fn get_eigenvalues(matrix: &[Vec<f64>]) -> Vec<i32> {
+pub fn get_eigenvalues(matrix: &[Vec<f32>]) -> Vec<i32> {
     // Check if the matrix is square
     if matrix.iter().any(|row| row.len() != matrix.len()) {
         panic!("Input matrix is not square");
     }
-    let _indentity_matrix: Vec<Vec<f64>> = vec![vec![0.0; matrix.len()]; matrix.len()];
+    let _indentity_matrix: Vec<Vec<f32>> = vec![vec![0.0; matrix.len()]; matrix.len()];
     for (index, row) in matrix.iter().enumerate() {
         for (index2, value) in row.iter().enumerate() {
             if index + index2 % 2 == 0 {
@@ -220,7 +220,7 @@ pub fn get_eigenvalues(matrix: &[Vec<f64>]) -> Vec<i32> {
 /// ### Where:
 /// * `x`: Is the eigenvector
 /// * `$A$`: Is the matrix
-pub fn get_eigenvectors(_matrix: &[Vec<f64>]) -> Vec<Vec<f64>> {
+pub fn get_eigenvectors(_matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
     todo!()
 }
 
@@ -256,9 +256,9 @@ mod tests {
                 vec![7.0, 48.0, 79.808]
             ]),
             [
-                vec![1062.1545333333333, 84.794, 1078.54392],
-                vec![84.794, 7.57, 99.8812],
-                vec![1078.54392, 99.8812, 1332.292288]
+                vec![1062.1545, 84.79399, 1078.544],
+                vec![84.79399, 7.5699987, 99.881195],
+                vec![1078.544, 99.881195, 1332.2922]
             ],
         );
     }

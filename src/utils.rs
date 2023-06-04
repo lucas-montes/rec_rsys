@@ -10,7 +10,7 @@
 ///
 /// ## Returns:
 /// The dot product of the two vectors.
-pub fn dot(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
+pub fn dot(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
     vec1.iter().zip(vec2.iter()).map(|(&x, &y)| x * y).sum()
 }
 
@@ -22,21 +22,21 @@ pub fn dot(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 ///
 /// ## Returns:
 /// The magnitude of the vector.
-pub fn euclidean_norm(vec: &Vec<f64>) -> f64 {
-    vec.iter().map(|&x| x * x).sum::<f64>().sqrt()
+pub fn euclidean_norm(vec: &Vec<f32>) -> f32 {
+    vec.iter().map(|&x| x * x).sum::<f32>().sqrt()
 }
 
 /// TODO
-pub fn squared_diff_sum(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
+pub fn squared_diff_sum(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
     vec1.iter()
         .zip(vec2.iter())
         .map(|(a, p)| (a - p).powi(2))
-        .sum::<f64>()
+        .sum::<f32>()
 }
 
 /// TODO
-pub fn local_sort(v: &mut Vec<f64>) {
-    v.sort_by(|x: &f64, y: &f64| x.total_cmp(y))
+pub fn local_sort(v: &mut Vec<f32>) {
+    v.sort_by(|x: &f32, y: &f32| x.total_cmp(y))
 }
 
 /// Function to calculate the ranks of the values in a vector.
@@ -51,10 +51,10 @@ pub fn local_sort(v: &mut Vec<f64>) {
 /// Perform an indirect sort along the given axis (-1).
 /// It returns an array of indices of the same shape as
 /// `vector` that index data along the given axis in sorted order.
-pub fn argsort(vector: &Vec<f64>) -> Vec<f64> {
-    let mut indexed_vector: Vec<(usize, &f64)> = vector.iter().enumerate().collect();
+pub fn argsort(vector: &Vec<f32>) -> Vec<f32> {
+    let mut indexed_vector: Vec<(usize, &f32)> = vector.iter().enumerate().collect();
     indexed_vector.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
-    indexed_vector.iter().map(|(i, _)| *i as f64).collect()
+    indexed_vector.iter().map(|(i, _)| *i as f32).collect()
 }
 
 /// Sorts the elements in the given vector `vector` using the provided comparison function `compare_fn`,
@@ -93,14 +93,14 @@ mod tests {
 
     #[test]
     fn test_sort_with_direction_ascending() {
-        let mut numbers: Vec<i32> = vec![4, 2, 8, 5, 1];
+        let mut numbers: Vec<u8> = vec![4, 2, 8, 5, 1];
         sort_with_direction(&mut numbers, |a, b| a.cmp(b), false);
         assert_eq!(numbers, vec![1, 2, 4, 5, 8],);
     }
 
     #[test]
     fn test_sort_with_direction_descending() {
-        let mut numbers: Vec<i32> = vec![4, 2, 8, 5, 1];
+        let mut numbers: Vec<u8> = vec![4, 2, 8, 5, 1];
         sort_with_direction(&mut numbers, |a, b| a.cmp(b), true);
         assert_eq!(numbers, vec![8, 5, 4, 2, 1],);
     }

@@ -37,9 +37,9 @@ use crate::matrix::{covariance, mean_along_axis, subtract_vector_from_matrix, tr
 /// * `V` represents the matrix of eigenvectors (principal components).
 pub struct PCA {
     n_components: usize,
-    components: Option<Vec<Vec<f64>>>,
-    mean: Option<Vec<f64>>,
-    sorted_eigenvalues: Option<Vec<f64>>,
+    components: Option<Vec<Vec<f32>>>,
+    mean: Option<Vec<f32>>,
+    sorted_eigenvalues: Option<Vec<f32>>,
 }
 
 impl PCA {
@@ -52,7 +52,7 @@ impl PCA {
         }
     }
 
-    pub fn fit(&mut self, mut x: &[Vec<f64>]) {
+    pub fn fit(&mut self, mut x: &[Vec<f32>]) {
         // Mean centering
         let centered_x = mean_along_axis(x, 0);
         x = &subtract_vector_from_matrix(&centered_x, &x);
@@ -67,11 +67,11 @@ impl PCA {
         let mut eigenvecs = transpose(&eigenvectors);
         let mut idxs: Vec<usize> = (0..x[0].len()).collect();
         idxs.sort_by(|&i, &j| eigenvalues[j].partial_cmp(&eigenvalues[i]).unwrap());
-        let sorted_eigenvalues = idxs.iter().map(|&i| eigenvalues[i]).collect::<Vec<f64>>();
+        let sorted_eigenvalues = idxs.iter().map(|&i| eigenvalues[i]).collect::<Vec<f32>>();
         eigenvecs = idxs
             .iter()
             .map(|&i| eigenvecs[i].clone())
-            .collect::<Vec<Vec<f64>>>();
+            .collect::<Vec<Vec<f32>>>();
 
         // Store first n eigenvectors
         let components = eigenvecs[..self.n_components].to_vec();
@@ -81,7 +81,7 @@ impl PCA {
         self.sorted_eigenvalues = Some(sorted_eigenvalues);
     }
 
-    pub fn transform(&self, x: &[Vec<f64>]) -> Vec<Vec<f64>> {
+    pub fn transform(&self, x: &[Vec<f32>]) -> Vec<Vec<f32>> {
         let num_samples = x.len();
         let num_features = x[0].len();
         let mut transformed_x = vec![vec![0.0; self.n_components]; num_samples];
@@ -103,7 +103,7 @@ impl PCA {
     }
 }
 
-fn eigen(mut a: Vec<Vec<f64>>) -> (Vec<f64>, Vec<Vec<f64>>) {
+fn eigen(mut a: Vec<Vec<f32>>) -> (Vec<f32>, Vec<Vec<f32>>) {
     let n = a.len();
     let mut eigenvalues = vec![0.0; n];
     let mut eigenvectors = vec![vec![0.0; n]; n];

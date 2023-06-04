@@ -18,8 +18,8 @@ use super::utils::local_sort;
 /// The mean is calculated by summing up all the data points in the set
 /// and dividing the sum by the total number of data points. It represents the central
 /// tendency or average value of the data set.
-pub fn mean(data: &Vec<f64>) -> f64 {
-    data.iter().sum::<f64>() / data.len() as f64
+pub fn mean(data: &Vec<f32>) -> f32 {
+    data.iter().sum::<f32>() / data.len() as f32
 }
 
 /// # Quartiles
@@ -38,10 +38,10 @@ pub fn mean(data: &Vec<f64>) -> f64 {
 /// Quartiles divide a data set into four equal parts, each containing approximately
 /// 25% of the data. The first quartile (Q1) is the median of the lower half of the sorted data,
 /// and the third quartile (Q3) is the median of the upper half of the sorted data.
-pub fn quartiles(data: &mut Vec<f64>) -> (f64, f64) {
+pub fn quartiles(data: &mut Vec<f32>) -> (f32, f32) {
     local_sort(data);
-    let q1: f64 = percentile_of_sorted(data, 25_f64);
-    let q3: f64 = percentile_of_sorted(data, 75_f64);
+    let q1: f32 = percentile_of_sorted(data, 25_f32);
+    let q3: f32 = percentile_of_sorted(data, 75_f32);
     (q1, q3)
 }
 
@@ -63,18 +63,18 @@ pub fn quartiles(data: &mut Vec<f64>) -> (f64, f64) {
 /// by interpolating between the lower value (L) and the upper value (U) closest to the rank
 /// corresponding to the desired percentile. The interpolation factor is determined by the
 /// fractional part of the rank.
-fn percentile_of_sorted(sorted_samples: &Vec<f64>, pct: f64) -> f64 {
+fn percentile_of_sorted(sorted_samples: &Vec<f32>, pct: f32) -> f32 {
     let sorted_len = sorted_samples.len();
     if sorted_len == 1 {
         return sorted_samples[0];
     }
-    if pct == 100_f64 {
+    if pct == 100_f32 {
         return sorted_samples[sorted_len - 1];
     }
-    let rank: f64 = (pct / 100_f64) * (sorted_len - 1) as f64;
-    let lrank: f64 = rank.floor();
-    let n: usize = lrank as usize;
-    let lo: f64 = sorted_samples[n];
+    let rank = (pct / 100_f32) * (sorted_len - 1) as f32;
+    let lrank = rank.floor();
+    let n = lrank as usize;
+    let lo = sorted_samples[n];
     lo + (sorted_samples[n + 1] - lo) * (rank - lrank)
 }
 
@@ -91,8 +91,8 @@ fn percentile_of_sorted(sorted_samples: &Vec<f64>, pct: f64) -> f64 {
 /// The median is the middle value of a set of data when it is sorted in ascending order.
 /// If the number of data points is odd, the median is the middle value. If the number of data points
 /// is even, the median is the average of the two middle values.
-pub fn median(data: &Vec<f64>) -> f64 {
-    percentile_of_sorted(data, 50_f64)
+pub fn median(data: &Vec<f32>) -> f32 {
+    percentile_of_sorted(data, 50_f32)
 }
 
 /// # Covariance
@@ -112,36 +112,36 @@ pub fn median(data: &Vec<f64>) -> f64 {
 /// The covariance measures the direction and magnitude of the linear relationship
 /// between two sets of data, x and y. It calculates the sum of the products of the deviations
 /// of each data point from their respective means, divided by the number of data points.
-pub fn covariance(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
-    let mean_x: f64 = mean(x);
-    let mean_y: f64 = mean(y);
+pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
+    let mean_x = mean(x);
+    let mean_y = mean(y);
 
     x.iter()
         .zip(y.iter())
         .map(|(&xi, &yi)| (xi - mean_x) * (yi - mean_y))
-        .sum::<f64>()
-        / (x.len() - 1) as f64
+        .sum::<f32>()
+        / (x.len() - 1) as f32
 }
-// pub fn covariance(vec1: &Vec<f64>, vec2: &Vec<f64>, len: Option<f64>) -> f64 {
-//     let mean_vec1: f64 = mean(vec1);
-//     let mean_vec2: f64 = mean(vec2);
+// pub fn covariance(vec1: &Vec<f32>, vec2: &Vec<f32>, len: Option<f32>) -> f32 {
+//     let mean_vec1: f32 = mean(vec1);
+//     let mean_vec2: f32 = mean(vec2);
 //     vec1.iter()
 //         .zip(vec2.iter())
 //         .map(|(x, y)| (x - mean_vec1) * (y - mean_vec2))
-//         .sum::<f64>()
+//         .sum::<f32>()
 //         / match len {
 //             Some(value) => value,
-//             None => vec1.len() as f64,
+//             None => vec1.len() as f32,
 //         }
 // }
 /// # Variance
 /// Variance is a statistical measure of how spread out a set of data points is. It provides a measure of the variability or dispersion of the data. In the context of recommender systems, variance can be used to quantify the spread or diversity of ratings or preferences given by users.
 ///
 /// ## Parameters:
-/// * `data`: A slice of f64 values representing the data points.
+/// * `data`: A slice of f32 values representing the data points.
 ///
 /// ## Returns:
-/// * The variance of the data as an f64 value.
+/// * The variance of the data as an f32 value.
 ///
 /// ## Examples:
 /// ```
@@ -158,9 +158,9 @@ pub fn covariance(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
 /// * \(n\) is the number of data points.
 /// * \(x_i\) is the \(i\)th data point.
 /// * \(\mu\) is the mean of the data points.
-pub fn variance(data: &Vec<f64>) -> f64 {
+pub fn variance(data: &Vec<f32>) -> f32 {
     let mean = mean(data);
-    data.iter().map(|&x| (x - mean).powi(2)).sum::<f64>() / data.len() as f64
+    data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>() / data.len() as f32
 }
 
 /// # Standard Deviation
@@ -181,29 +181,30 @@ pub fn variance(data: &Vec<f64>) -> f64 {
 /// from the mean, squaring the deviations, summing them up, dividing by the number of data
 /// points, and then taking the square root. The standard deviation indicates how spread out
 /// the data points are around the mean.
-pub fn standard_deviation(data: &Vec<f64>) -> f64 {
-    let mean: f64 = mean(data);
-    let sum_squared_deviations = data.iter().map(|&x| (x - mean).powi(2)).sum::<f64>();
-    (sum_squared_deviations / data.len() as f64).sqrt()
+pub fn standard_deviation(data: &Vec<f32>) -> f32 {
+    let mean = mean(data);
+    let sum_squared_deviations = data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>();
+    (sum_squared_deviations / data.len() as f32).sqrt()
 }
 
 /// TODO
-pub fn standard_deviation_pct(data: &Vec<f64>) -> f64 {
-    (standard_deviation(data) / mean(data)) * 100_f64
+pub fn standard_deviation_pct(data: &Vec<f32>) -> f32 {
+    (standard_deviation(data) / mean(data)) * 100_f32
 }
 
+/// TODO
 #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
-pub fn median_abs_dev(data: &Vec<f64>) -> f64 {
-    let med: f64 = median(data);
-    let abs_devs: Vec<f64> = data.iter().map(|&v| (med - v).abs()).collect();
+pub fn median_abs_dev(data: &Vec<f32>) -> f32 {
+    let med = median(data);
+    let abs_devs: Vec<f32> = data.iter().map(|&v| (med - v).abs()).collect();
     // This constant is derived by smarter statistics brains than me, but it is
     // consistent with how R and other packages treat the MAD.
     median(&abs_devs) * 1.4826
 }
 
 /// TODO
-pub fn median_abs_dev_pct(data: &Vec<f64>) -> f64 {
-    (median_abs_dev(data) / median(data)) * 100_f64
+pub fn median_abs_dev_pct(data: &Vec<f32>) -> f32 {
+    (median_abs_dev(data) / median(data)) * 100_f32
 }
 
 #[cfg(test)]

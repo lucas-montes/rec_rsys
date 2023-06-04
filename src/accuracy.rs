@@ -16,7 +16,7 @@
 ///
 /// ## Formula:
 /// $$ \sqrt{\sum_{i = 1}^{n}\frac{(y_i - x_i)²}{n}} $$
-pub fn rmse(predicted: &[f64], actual: &Vec<f64>) -> f64 {
+pub fn rmse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
     mse(predicted, actual).sqrt()
 }
 
@@ -31,13 +31,13 @@ pub fn rmse(predicted: &[f64], actual: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$ \frac{1}{n}\sum_{i = 1}^{n}(y_i - x_i)² $$
-pub fn mse(predicted: &[f64], actual: &Vec<f64>) -> f64 {
+pub fn mse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
     actual
         .iter()
         .zip(predicted.iter())
         .map(|(a, p)| (a - p).powi(2))
-        .sum::<f64>()
-        / actual.len() as f64
+        .sum::<f32>()
+        / actual.len() as f32
 }
 
 /// # Compute MAE (Mean Absolute Error).
@@ -52,13 +52,13 @@ pub fn mse(predicted: &[f64], actual: &Vec<f64>) -> f64 {
 /// ## Formula:
 /// $$\sum_{i = 1}^{n}|y_i - x_i|$$
 ///
-pub fn mae(predicted: &Vec<f64>, actual: &Vec<f64>) -> f64 {
+pub fn mae(predicted: &Vec<f32>, actual: &Vec<f32>) -> f32 {
     actual
         .iter()
         .zip(predicted)
         .map(|(a, p)| (a - p).abs())
-        .sum::<f64>()
-        / actual.len() as f64
+        .sum::<f32>()
+        / actual.len() as f32
 }
 
 /// # Compute ARHR (Average reciprocal hit rate)
@@ -74,8 +74,8 @@ pub fn mae(predicted: &Vec<f64>, actual: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$ \frac{\sum_{i = 1}^{n}\frac{1}{rank_i}}{users} $$
-pub fn arhr(hits_ranks: Vec<i16>, number_users: i16) -> i16 {
-    hits_ranks.iter().map(|rank: &i16| 1 / rank).sum::<i16>() / number_users
+pub fn arhr(hits_ranks: Vec<u32>, number_users: u32) -> u32 {
+    hits_ranks.iter().map(|rank: &u32| 1 / rank).sum::<u32>() / number_users
 }
 
 /// # Compute Hit Rate
@@ -89,7 +89,7 @@ pub fn arhr(hits_ranks: Vec<i16>, number_users: i16) -> i16 {
 ///
 /// ## Formula:
 /// /// $$ \frac{hits}{users} $$
-pub fn hit_rate(number_hits: i16, number_users: i16) -> i16 {
+pub fn hit_rate(number_hits: u32, number_users: u32) -> u32 {
     number_hits / number_users
 }
 
@@ -101,8 +101,8 @@ pub fn hit_rate(number_hits: i16, number_users: i16) -> i16 {
 ///
 /// ## Returns:
 /// * Hit Rate.
-pub fn vec_hit_rate(hits: Vec<i16>, users: Vec<i16>) -> i16 {
-    hits.iter().sum::<i16>() / users.len() as i16
+pub fn vec_hit_rate(hits: Vec<u32>, users: Vec<u32>) -> u32 {
+    hits.iter().sum::<u32>() / users.len() as u32
 }
 
 /// # Cumulative Hit Rate
@@ -123,12 +123,12 @@ pub fn vec_hit_rate(hits: Vec<i16>, users: Vec<i16>) -> i16 {
 ///
 /// ## Formula:
 /// $$ \text{CHR} = \frac{{\text{Number of correctly predicted items}}}{{\text{Total number of items}}} $$
-fn cumulative_hit_rate(predicted_items: &[u32], true_items: &[u32]) -> f64 {
+fn cumulative_hit_rate(predicted_items: &[u32], true_items: &[u32]) -> f32 {
     predicted_items
         .iter()
         .filter(|&item| true_items.contains(item))
-        .count() as f64
-        / true_items.len() as f64
+        .count() as f32
+        / true_items.len() as f32
 }
 
 #[cfg(test)]

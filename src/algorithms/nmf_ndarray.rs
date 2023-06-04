@@ -67,10 +67,10 @@ use rand_distr::Uniform;
 /// * `^T` denotes matrix transpose.
 ///
 pub fn nmf(
-    matrix: Array2<f64>,
+    matrix: Array2<f32>,
     n_components: usize,
     max_iter: usize,
-) -> (Array2<f64>, Array2<f64>) {
+) -> (Array2<f32>, Array2<f32>) {
     let (m, n) = matrix.dim();
 
     // Initialize W and H matrices with random non-negative values

@@ -1,90 +1,117 @@
 //! KNN
-use std::collections::HashMap;
-
-use crate::similarity::{cosine_similarity, euclidean_distance};
+use crate::models::Item;
+use crate::similarity::{
+    adjusted_cosine_similarity, cosine_similarity, euclidean_distance, msd_similarity,
+    pearson_baseline_similarity, pearson_correlation, spearman_correlation, SimilarityAlgos,
+};
 use crate::utils::sort_with_direction;
 
+pub struct KNN {
+    new_item: Item,
+    references: Vec<Item>,
+    k: u8,
+}
+
+impl KNN {
+    pub fn new(new_item: Item, references: Vec<Item>, k: u8) -> Self {
+        KNN {
+            new_item,
+            references,
+            k,
+        }
+    }
+    pub fn vectors_comparaison(self, algo: SimilarityAlgos) -> Vec<Item> {
+        let (formula, reverse) = KNN::get_formula(algo);
+        let mut best_matches: Vec<Item> = Vec::new();
+        self.references.iter().for_each(|item| {
+            let cloned_item = item.clone();
+            best_matches.push(cloned_item.result(formula(&self.new_item.values, &item.values)))
+        });
+
+        sort_and_trucate(best_matches, reverse, self.k)
+    }
+    fn get_formula(algo: SimilarityAlgos) -> (&'static dyn Fn(&Vec<f32>, &Vec<f32>) -> f32, bool) {
+        match algo {
+            SimilarityAlgos::Cosine => (&cosine_similarity, true),
+            SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
+            SimilarityAlgos::Euclidean => (&euclidean_distance, false),
+            SimilarityAlgos::PearsonCorrelation => (&pearson_correlation, true),
+            SimilarityAlgos::PearsonBaseline => (&pearson_baseline_similarity, true),
+            SimilarityAlgos::Spearman => (&spearman_correlation, true),
+            SimilarityAlgos::MSD => (&msd_similarity, true),
+        }
+    }
+}
+
 /// KNN algorithm using the euclidean distance
-pub fn euclidean_knn(
-    new_item: Vec<f64>,
-    references: HashMap<i16, Vec<f64>>,
-    k: usize,
-) -> Vec<(f64, i16)> {
+pub fn euclidean_knn(new_item: Item, references: Vec<Item>, k: u8) -> Vec<Item> {
     knn(new_item, references, k, euclidean_distance, false)
 }
 
 /// KNN algorithm using the cosine similarity
-pub fn cosine_knn(
-    new_item: Vec<f64>,
-    references: HashMap<i16, Vec<f64>>,
-    k: usize,
-) -> Vec<(f64, i16)> {
+pub fn cosine_knn(new_item: Item, references: Vec<Item>, k: u8) -> Vec<Item> {
     knn(new_item, references, k, cosine_similarity, true)
 }
 
 fn knn(
-    new_input: Vec<f64>,
-    references: HashMap<i16, Vec<f64>>,
-    k: usize,
-    formula: impl Fn(&Vec<f64>, &Vec<f64>) -> f64,
+    new_input: Item,
+    mut references: Vec<Item>,
+    k: u8,
+    formula: impl Fn(&Vec<f32>, &Vec<f32>) -> f32,
     reverse: bool,
-) -> Vec<(f64, i16)> {
-    sort_and_trucate(
-        references
-            .iter()
-            .map(|(key, value)| (formula(&new_input, value), *key))
-            .collect(),
-        reverse,
-        k,
-    )
+) -> Vec<Item> {
+    references
+        .iter_mut()
+        .for_each(|item| item.result = formula(&new_input.values, &item.values));
+
+    sort_and_trucate(references, reverse, k)
 }
 
-fn sort_and_trucate(mut best_matches: Vec<(f64, i16)>, reverse: bool, k: usize) -> Vec<(f64, i16)> {
-    sort_with_direction(&mut best_matches, |(a, _), (b, _)| a.total_cmp(b), reverse);
-    best_matches.truncate(k);
+fn sort_and_trucate(mut best_matches: Vec<Item>, reverse: bool, k: u8) -> Vec<Item> {
+    sort_with_direction(
+        &mut best_matches,
+        |item_a, item_b| item_a.result.total_cmp(&item_b.result),
+        reverse,
+    );
+    best_matches.truncate(k as usize);
     best_matches
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::Item;
+
+    fn mock(_: &Vec<f32>, m1: &Vec<f32>) -> f32 {
+        m1[0]
+    }
 
     #[test]
-    fn test_cosine_knn() {
-        let mut refs: HashMap<i16, Vec<f64>> = HashMap::new();
-        refs.insert(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811]);
-        refs.insert(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644]);
-        refs.insert(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256]);
-        refs.insert(4, vec![0.9376, 0.4734, 0.2254, 0.9728, 0.8401]);
-        refs.insert(5, vec![0.7429, 0.3250, 0.5680, 0.2614, 0.4483]);
-        refs.insert(6, vec![0.0686, 0.9531, 0.3464, 0.6426, 0.1746]);
-        refs.insert(7, vec![0.2442, 0.3728, 0.3096, 0.1398, 0.8162]);
-        refs.insert(8, vec![0.3682, 0.9574, 0.0486, 0.8852, 0.1986]);
-        refs.insert(9, vec![0.3455, 0.2594, 0.7464, 0.0489, 0.4088]);
-        refs.insert(10, vec![0.7193, 0.4097, 0.6990, 0.3292, 0.8811]);
+    fn test_knn() {
+        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], 1.0);
+        let item2 = Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], 0.33);
+        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], 0.0);
+
         assert_eq!(
-            cosine_knn(vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], refs, 3),
-            vec![(1.0, 1), (0.9696546846691771, 2), (0.9433796948413147, 10)],
+            knn(
+                item1.clone(),
+                vec![item1.clone(), item2.clone(), item3.clone()],
+                6,
+                mock,
+                true
+            ),
+            vec![item2, item1, item3]
         );
     }
 
     #[test]
-    fn test_euclidean_knn() {
-        let mut refs: HashMap<i16, Vec<f64>> = HashMap::new();
-        refs.insert(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811]);
-        refs.insert(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644]);
-        refs.insert(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256]);
-        refs.insert(4, vec![0.9376, 0.4734, 0.2254, 0.9728, 0.8401]);
-        refs.insert(5, vec![0.7429, 0.3250, 0.5680, 0.2614, 0.4483]);
-        refs.insert(6, vec![0.0686, 0.9531, 0.3464, 0.6426, 0.1746]);
-        refs.insert(7, vec![0.2442, 0.3728, 0.3096, 0.1398, 0.8162]);
-        refs.insert(8, vec![0.3682, 0.9574, 0.0486, 0.8852, 0.1986]);
-        refs.insert(9, vec![0.3455, 0.2594, 0.7464, 0.0489, 0.4088]);
-        refs.insert(10, vec![0.7193, 0.4097, 0.6990, 0.3292, 0.8811]);
-
+    fn test_sort_and_trucate() {
+        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], 1.0);
+        let item2 = Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], 0.33);
+        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], 0.0);
         assert_eq!(
-            euclidean_knn(vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], refs, 3),
-            vec![(0.0, 1), (0.4905142505575144, 2), (0.5744562646538027, 10)],
+            sort_and_trucate(vec![item1.clone(), item2.clone(), item3], true, 2),
+            vec![item1, item2]
         );
     }
 }

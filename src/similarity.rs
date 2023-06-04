@@ -4,6 +4,15 @@ use super::statistics::mean;
 use super::utils::{argsort, dot, euclidean_norm, squared_diff_sum};
 use std::collections::HashSet;
 
+pub enum SimilarityAlgos {
+    Euclidean,
+    Cosine,
+    AdjustedCosine,
+    PearsonCorrelation,
+    PearsonBaseline,
+    Spearman,
+    MSD,
+}
 /// # Jaccard Similarity
 /// Calculated the Jaccard similarity between to sets.
 ///
@@ -28,8 +37,8 @@ use std::collections::HashSet;
 ///
 /// ### Where:
 /// * `(A, B)`: Users
-pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f64 {
-    a.intersection(b).count() as f64 / a.union(b).count() as f64
+pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f32 {
+    a.intersection(b).count() as f32 / a.union(b).count() as f32
 }
 
 /// # Cosine Similarity
@@ -55,7 +64,7 @@ pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f64 {
 ///
 /// ### Where:
 /// * $x, y = \text{}$
-pub fn cosine_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
+pub fn cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
     dot(vec1, vec2) / (euclidean_norm(vec1) * euclidean_norm(vec2))
 }
 
@@ -91,7 +100,7 @@ pub fn cosine_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 /// * `Ru,BRu,B`​ represents the rating of user uu for item B.
 /// * `R‾uRu​ `represents the average rating of user uu across all items.
 /// * `UU` represents the set of users who have rated both item A and item B.
-pub fn adjusted_cosine_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
+pub fn adjusted_cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
     dot(vec1, vec2) / (euclidean_norm(vec1) * euclidean_norm(vec2))
 }
 
@@ -115,7 +124,7 @@ pub fn adjusted_cosine_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$ d(p,q)=\sqrt{\sum_{i = 1}^{n}(q_i - p_i)²} $$
-pub fn euclidean_distance(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
+pub fn euclidean_distance(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
     squared_diff_sum(vec1, vec2).sqrt()
 }
 
@@ -142,8 +151,8 @@ pub fn euclidean_distance(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 /// ## Formula:
 ///
 /// ## Returns:
-/// The calculated similarity value as a `f64` (floating-point number) between 0 and 1.
-pub fn exponential_decay_similarity(value1: f64, value2: f64, decay_rate: f64) -> f64 {
+/// The calculated similarity value as a `f32` (floating-point number) between 0 and 1.
+pub fn exponential_decay_similarity(value1: f32, value2: f32, decay_rate: f32) -> f32 {
     (-(value1 - value2).abs() / decay_rate).exp()
 }
 
@@ -167,13 +176,13 @@ pub fn exponential_decay_similarity(value1: f64, value2: f64, decay_rate: f64) -
 ///
 /// ## Formula:
 /// $$ r = \frac{{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}}{{\sqrt{{\sum_{i=1}^{n} (x_i - \bar{x})^2}} \cdot \sqrt{{\sum_{i=1}^{n} (y_i - \bar{y})^2}}}} $$
-pub fn pearson_correlation(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
-    let mean_vec1: f64 = mean(vec1);
-    let mean_vec2: f64 = mean(vec2);
+pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
+    let mean_vec1 = mean(vec1);
+    let mean_vec2 = mean(vec2);
 
-    let mut covariance: f64 = 0.0;
-    let mut variance_x: f64 = 0.0;
-    let mut variance_y: f64 = 0.0;
+    let mut covariance = 0.0;
+    let mut variance_x = 0.0;
+    let mut variance_y = 0.0;
 
     vec1.iter().zip(vec2.iter()).for_each(|(x, y)| {
         let deviation_x = x - mean_vec1;
@@ -213,17 +222,17 @@ pub fn pearson_correlation(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$\text{similarity} = \frac{{\sum_{i=1}^{n}((r_{xi} - b_{xi}) \cdot (r_{yi} - b_{yi}))}}{{\sqrt{{\sum_{i=1}^{n}(r_{xi} - b_{xi})^2}} \cdot \sqrt{{\sum_{i=1}^{n}(r_{yi} - b_{yi})^2}}}}$$
-pub fn pearson_baseline_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
-    let mut numerator: f64 = 0.0;
-    let mut denominator_x: f64 = 0.0;
-    let mut denominator_y: f64 = 0.0;
+pub fn pearson_baseline_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
+    let mut numerator = 0.0;
+    let mut denominator_x = 0.0;
+    let mut denominator_y = 0.0;
 
     let bx = mean(vec1);
     let by = mean(vec2);
 
     vec1.iter().zip(vec2.iter()).for_each(|(x, y)| {
-        let x_bx: f64 = x - bx;
-        let y_by: f64 = y - by;
+        let x_bx = x - bx;
+        let y_by = y - by;
         numerator += x_bx * y_by;
         denominator_x += x_bx.powi(2);
         denominator_y += y_by.powi(2);
@@ -257,8 +266,8 @@ pub fn pearson_baseline_similarity(vec1: &Vec<f64>, vec2: &Vec<f64>) -> f64 {
 ///
 /// ## Notes:
 /// See if it's relevant to keep this one as is the same formula as the MSE
-pub fn msd(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
-    squared_diff_sum(x, y) / x.len() as f64
+pub fn msd(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
+    squared_diff_sum(x, y) / x.len() as f32
 }
 
 /// # Mean Squared Difference Similarity
@@ -273,7 +282,7 @@ pub fn msd(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
 /// ## Examples:
 ///
 /// ```
-/// // struct User {items: Vec<f64>}
+/// // struct User {items: Vec<f32>}
 /// let user1 = User::from(vec![23.0,15.2,11.2222]);
 /// let user2 = User::from(vec![23.0,7.8,87.02]);
 /// let similarity = msd_similarity(user1.items, user2.items);
@@ -291,7 +300,7 @@ pub fn msd(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
 /// * $I = \text{Item}$
 /// * $R = \text{Rating}$
 /// * $I_{xy} = \text{Items in common}$
-pub fn msd_similarity(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
+pub fn msd_similarity(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
     1.0 / (msd(x, y) + 1.0)
 }
 
@@ -315,12 +324,12 @@ pub fn msd_similarity(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
 ///
 /// ## Formula:
 /// $$ \text{correlation} = 1 - \frac{{6 \sum_{i=1}^{n}(d_i)^2}}{{n(n^2 - 1)}} $$
-pub fn spearman_correlation(x: &Vec<f64>, y: &Vec<f64>) -> f64 {
-    let n: f64 = x.len() as f64;
+pub fn spearman_correlation(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
+    let n = x.len() as f32;
     1.0 - (6.0 * squared_diff_sum(&spearman_rank(x), &spearman_rank(y))) / (n * (n.powi(2) - 1.0))
 }
 
-fn spearman_rank(x: &Vec<f64>) -> Vec<f64> {
+fn spearman_rank(x: &Vec<f32>) -> Vec<f32> {
     argsort(&argsort(x))
 }
 
@@ -345,11 +354,11 @@ fn spearman_rank(x: &Vec<f64>) -> Vec<f64> {
 ///
 /// ## Formula:
 /// $$\text{distance} = \left(\sum_{i=1}^{n} |x_i - y_i|^p \right)^{\frac{1}{p}}$$
-pub fn minkowski_distance(x: &[f64], y: &[f64], p: f64) -> f64 {
+pub fn minkowski_distance(x: &[f32], y: &[f32], p: f32) -> f32 {
     x.iter()
         .zip(y.iter())
         .map(|(&xi, &yi)| (xi - yi).abs().powf(p))
-        .sum::<f64>()
+        .sum::<f32>()
         .powf(1.0 / p)
 }
 
@@ -392,7 +401,7 @@ mod tests {
     fn test_exponential_decay_similarity() {
         assert_eq!(
             exponential_decay_similarity(23.5, 44.33333333, 10.0),
-            0.12451447148562779,
+            0.12451447,
         );
     }
 
@@ -424,7 +433,7 @@ mod tests {
     fn test_spearman_correlation() {
         assert_eq!(
             spearman_correlation(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.4,
+            0.39999998,
         );
     }
 

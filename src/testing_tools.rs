@@ -30,12 +30,12 @@ impl CustomRng {
 }
 
 // Function to create a vector with random values within a range
-pub fn create_vector(num_elements: usize, min_value: f64, max_value: f64) -> Vec<f64> {
-    let mut vec: Vec<f64> = Vec::with_capacity(num_elements);
+pub fn create_vector(num_elements: usize, min_value: f32, max_value: f32) -> Vec<f32> {
+    let mut vec: Vec<f32> = Vec::with_capacity(num_elements);
     let mut rng: CustomRng = CustomRng::new(0);
 
     for _ in 0..num_elements {
-        let value = (rng.next() % (max_value - min_value + 1.0) as u32) as f64 + min_value;
+        let value = (rng.next() % (max_value - min_value + 1.0) as u32) as f32 + min_value;
         vec.push(value);
     }
 
@@ -91,19 +91,19 @@ pub fn compare_execution_times(n: u64, functions: Vec<(&str, Rc<RefCell<dyn Fn()
 
 struct FunctionStatistics {
     name: String,
-    mean: f64,
-    median: f64,
-    std_deviation: f64,
-    percentile_25: f64,
-    percentile_75: f64,
-    speedup: Option<f64>,
+    mean: f32,
+    median: f32,
+    std_deviation: f32,
+    percentile_25: f32,
+    percentile_75: f32,
+    speedup: Option<f32>,
 }
 
 fn analyze_execution_results(results: HashMap<String, Vec<Duration>>) {
     let mut function_stats: Vec<FunctionStatistics> = results
         .iter()
         .map(|(name, duration_times)| {
-            let mut execution_times: Vec<f64> = durations_to_f64s(duration_times);
+            let mut execution_times: Vec<f32> = durations_to_f32s(duration_times);
             let (percentile_25, percentile_75) = quartiles(&mut execution_times);
 
             FunctionStatistics {
@@ -156,10 +156,10 @@ fn analyze_execution_results(results: HashMap<String, Vec<Duration>>) {
     }
 }
 
-fn durations_to_f64s(durations: &Vec<Duration>) -> Vec<f64> {
+fn durations_to_f32s(durations: &Vec<Duration>) -> Vec<f32> {
     durations
         .iter()
-        .map(|duration| duration.as_secs_f64())
+        .map(|duration| duration.as_secs_f32())
         .collect()
 }
 
@@ -170,11 +170,11 @@ pub fn test_implementation() {
     //         matrix.push(create_vector(v, -1000.0, 1000.0));
     //     }
 
-    //     let m1: Vec<Vec<f64>> = matrix.clone();
-    //     let m2: Vec<Vec<f64>> = matrix.clone();
-    //     let _m3: Vec<Vec<f64>> = matrix.clone();
-    //     let _m4: Vec<Vec<f64>> = matrix.clone();
-    //     let _m5: Vec<Vec<f64>> = matrix.clone();
+    //     let m1: Vec<Vec<f32>> = matrix.clone();
+    //     let m2: Vec<Vec<f32>> = matrix.clone();
+    //     let _m3: Vec<Vec<f32>> = matrix.clone();
+    //     let _m4: Vec<Vec<f32>> = matrix.clone();
+    //     let _m5: Vec<Vec<f32>> = matrix.clone();
 
     //     let functions: Vec<(&str, Rc<RefCell<dyn Fn()>>)> = vec![
     //         (

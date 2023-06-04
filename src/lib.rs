@@ -1,11 +1,5 @@
 #![allow(dead_code, unused)]
-#![deny(
-    missing_docs,
-    nonstandard_style,
-    unused_variables,
-    unused_mut,
-    unused_parens
-)]
+#![deny(nonstandard_style, unused_variables, unused_mut, unused_parens)]
 //! [![github]](https://github.com/lucas-montes/rec_rsys)&ensp;[![crates-io]](https://crates.io/crates/rec_rsys)&ensp;[![docs-rs]](crate)
 //!
 //! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github

@@ -43,7 +43,7 @@ use std::collections::{HashMap, HashSet};
 /// The training process involves updating item embeddings using gradient descent. Positive and negative embeddings are sampled, and the embeddings are adjusted to minimize the difference between positive and negative embeddings.
 
 struct TranslationBasedModel {
-    item_embeddings: HashMap<usize, Vec<f64>>,
+    item_embeddings: HashMap<usize, Vec<f32>>,
 }
 
 impl TranslationBasedModel {
@@ -57,14 +57,14 @@ impl TranslationBasedModel {
         &mut self,
         ratings: &HashMap<usize, HashSet<usize>>,
         embedding_dim: usize,
-        learning_rate: f64,
+        learning_rate: f32,
         num_epochs: usize,
     ) {
         // Generate initial embeddings randomly
         for item_id in ratings.keys() {
             let embedding = (0..embedding_dim)
-                .map(|_| rand::random::<f64>())
-                .collect::<Vec<f64>>();
+                .map(|_| rand::random::<f32>())
+                .collect::<Vec<f32>>();
             self.item_embeddings.insert(*item_id, embedding);
         }
 
@@ -87,7 +87,7 @@ impl TranslationBasedModel {
         }
     }
 
-    fn sample_negative_embedding(&self, user_id: &usize, items: &HashSet<usize>) -> Vec<f64> {
+    fn sample_negative_embedding(&self, user_id: &usize, items: &HashSet<usize>) -> Vec<f32> {
         loop {
             let random_item = rand::random::<usize>() % self.item_embeddings.len();
             if !items.contains(&random_item) {
@@ -98,7 +98,7 @@ impl TranslationBasedModel {
 
     fn recommend_items(&self, user_id: &usize, top_n: usize) -> Vec<usize> {
         let user_embedding = self.calculate_user_embedding(user_id);
-        let mut item_scores: Vec<(usize, f64)> = self
+        let mut item_scores: Vec<(usize, f32)> = self
             .item_embeddings
             .iter()
             .map(|(item_id, item_embedding)| {
@@ -115,23 +115,23 @@ impl TranslationBasedModel {
             .collect()
     }
 
-    fn calculate_user_embedding(&self, user_id: &usize) -> Vec<f64> {
+    fn calculate_user_embedding(&self, user_id: &usize) -> Vec<f32> {
         let user_embedding = self
             .item_embeddings
             .values()
             .filter_map(|embedding| embedding.get(*user_id))
             .map(|&value| value)
-            .collect::<Vec<f64>>();
+            .collect::<Vec<f32>>();
 
-        let num_items = self.item_embeddings.len() as f64;
+        let num_items = self.item_embeddings.len() as f32;
         user_embedding
             .iter()
             .map(|&value| value / num_items)
             .collect()
     }
 
-    fn calculate_similarity(&self, embedding1: &[f64], embedding2: &[f64]) -> f64 {
-        let sum_squared_diff: f64 = embedding1
+    fn calculate_similarity(&self, embedding1: &[f32], embedding2: &[f32]) -> f32 {
+        let sum_squared_diff: f32 = embedding1
             .iter()
             .zip(embedding2.iter())
             .map(|(&value1, &value2)| (value1 - value2) * (value1 - value2))
