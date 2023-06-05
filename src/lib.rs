@@ -14,5 +14,5 @@ pub mod matrix;
 pub mod models;
 pub mod similarity;
 pub mod statistics;
-mod testing_tools;
+pub mod testing_tools;
 pub mod utils;

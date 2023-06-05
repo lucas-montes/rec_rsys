@@ -145,6 +145,7 @@ pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 ///
 /// ## Examples:
 /// ```
+/// use rec_rsys::statistics::variance;
 /// assert_eq!(variance(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 2.0);
 /// ```
 ///

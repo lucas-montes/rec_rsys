@@ -68,6 +68,7 @@ pub fn argsort(vector: &Vec<f32>) -> Vec<f32> {
 ///
 /// ## Example
 /// ```
+/// use rec_rsys::utils::sort_with_direction;
 /// let mut numbers = vec![4, 2, 8, 5, 1];
 ///
 /// sort_with_direction(&mut numbers, |a, b| a.cmp(b), false);

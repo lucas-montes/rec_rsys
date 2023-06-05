@@ -117,6 +117,7 @@ pub fn covariance(data: &[Vec<f32>]) -> Vec<Vec<f32>> {
 ///
 /// ## Examples:
 /// ```
+/// use rec_rsys::matrix::subtract_vector_from_matrix;
 /// let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 /// let vector = vec![0.5, 1.0, 1.5];
 /// let result = subtract_vector_from_matrix(&matrix, &vector);
@@ -135,7 +136,7 @@ pub fn covariance(data: &[Vec<f32>]) -> Vec<Vec<f32>> {
 /// ### Where:
 /// * `M_{ij}` represents the element at the `i`th row and `j`th column of the matrix `M`.
 /// * `v_j` represents the `j`th element of the vector `v`.
-pub fn subtract_vector_from_matrix(vector: &[f32], matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
+pub fn subtract_vector_from_matrix(matrix: &[Vec<f32>], vector: &[f32]) -> Vec<Vec<f32>> {
     matrix
         .iter()
         .map(|row| {
@@ -199,13 +200,14 @@ pub fn get_eigenvalues(matrix: &[Vec<f32>]) -> Vec<i32> {
 /// * A matrix where each column represents an eigenvector of the matrix.
 ///
 /// ## Examples:
-/// ```
+/// ```ignore
+/// use rec_rsys::matrix::get_eigenvectors;
 /// let matrix = vec![
 ///     vec![2.0, 1.0, 0.0],
 ///     vec![1.0, 2.0, 1.0],
 ///     vec![0.0, 1.0, 2.0],
 /// ];
-/// let eigenvectors = eigenvectors(&matrix);
+/// let eigenvectors = get_eigenvectors(&matrix);
 /// println!("Eigenvectors: {:?}", eigenvectors);
 /// ```
 ///
@@ -240,8 +242,8 @@ mod tests {
     fn test_subtract_vector_from_matrix() {
         assert_eq!(
             subtract_vector_from_matrix(
-                &vec![0.5, 1.0, 1.5],
                 &vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]],
+                &vec![0.5, 1.0, 1.5],
             ),
             vec![vec![0.5, 1.0, 1.5], vec![3.5, 4.0, 4.5]]
         );

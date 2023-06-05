@@ -16,6 +16,13 @@ impl Item {
     pub fn new(id: u32, values: Vec<f32>, result: f32) -> Self {
         Item { id, values, result }
     }
+    // pub fn new(id: u32, values: Vec<f32>) -> Self {
+    //     Item {
+    //         id,
+    //         values,
+    //         result: f32::NAN,
+    //     }
+    // }
     pub fn result(mut self, r: f32) -> Self {
         self.result = r;
         self

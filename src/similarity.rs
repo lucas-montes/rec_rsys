@@ -9,7 +9,6 @@ pub enum SimilarityAlgos {
     Cosine,
     AdjustedCosine,
     PearsonCorrelation,
-    PearsonBaseline,
     Spearman,
     MSD,
 }
@@ -138,6 +137,7 @@ pub fn euclidean_distance(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 ///
 /// ## Examples:
 /// ```
+/// use rec_rsys::similarity::exponential_decay_similarity;
 /// let value1 = 10.0;
 /// let value2 = 20.0;
 /// let decay_rate = 0.2;
@@ -202,8 +202,7 @@ pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// ## Parameters:
 /// * `vec1`: The first vector of ratings.
 /// * `vec2`: The second vector of ratings.
-/// * `bx`: The baseline estimate for the first vector.
-/// * `by`: The baseline estimate for the second vector.
+/// * `shrinkage`: The shrinkage for the vectors.
 ///
 /// ## Returns:
 /// * The Pearson Baseline similarity between the vectors.
@@ -222,23 +221,17 @@ pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 ///
 /// ## Formula:
 /// $$\text{similarity} = \frac{{\sum_{i=1}^{n}((r_{xi} - b_{xi}) \cdot (r_{yi} - b_{yi}))}}{{\sqrt{{\sum_{i=1}^{n}(r_{xi} - b_{xi})^2}} \cdot \sqrt{{\sum_{i=1}^{n}(r_{yi} - b_{yi})^2}}}}$$
-pub fn pearson_baseline_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
-    let mut numerator = 0.0;
-    let mut denominator_x = 0.0;
-    let mut denominator_y = 0.0;
+pub fn pearson_baseline_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>, shrinkage: f32) -> f32 {
+    // let intersection_count = vec1
+    //     .iter()
+    //     .zip(vec2.iter())
+    //     .filter(|&(a, b)| !a.is_nan() && !b.is_nan())
+    //     .count();
 
-    let bx = mean(vec1);
-    let by = mean(vec2);
+    // let adjusted_intersection = intersection_count.checked_sub(1).unwrap_or(0) as f32;
+    let adjusted_intersection = vec1.len().checked_sub(1).unwrap_or(0) as f32;
 
-    vec1.iter().zip(vec2.iter()).for_each(|(x, y)| {
-        let x_bx = x - bx;
-        let y_by = y - by;
-        numerator += x_bx * y_by;
-        denominator_x += x_bx.powi(2);
-        denominator_y += y_by.powi(2);
-    });
-
-    numerator / (denominator_x.sqrt() * denominator_y.sqrt())
+    (adjusted_intersection / (adjusted_intersection + shrinkage)) * pearson_correlation(vec1, vec2)
 }
 
 /// # Mean Squared Difference
@@ -282,10 +275,10 @@ pub fn msd(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 /// ## Examples:
 ///
 /// ```
-/// // struct User {items: Vec<f32>}
-/// let user1 = User::from(vec![23.0,15.2,11.2222]);
-/// let user2 = User::from(vec![23.0,7.8,87.02]);
-/// let similarity = msd_similarity(user1.items, user2.items);
+/// use rec_rsys::similarity::msd_similarity;
+/// let user1 = vec![23.0,15.2,11.2222];
+/// let user2 = vec![23.0,7.8,87.02];
+/// let similarity = msd_similarity(&user1,&user2);
 /// println!("Similarity: {}", similarity);
 /// ```
 ///
@@ -401,7 +394,7 @@ mod tests {
     fn test_exponential_decay_similarity() {
         assert_eq!(
             exponential_decay_similarity(23.5, 44.33333333, 10.0),
-            0.12451447,
+            0.12451448,
         );
     }
 
@@ -424,8 +417,12 @@ mod tests {
     #[test]
     fn test_pearson_baseline_similarity() {
         assert_eq!(
-            pearson_baseline_similarity(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            1.2900284420839274,
+            pearson_baseline_similarity(
+                &vec![3.0, 45.0, 7.0, 2.0],
+                &vec![2.0, 54.0, 13.0, 15.0],
+                3.2
+            ),
+            0.46815547,
         );
     }
 

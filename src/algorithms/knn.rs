@@ -36,7 +36,6 @@ impl KNN {
             SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
             SimilarityAlgos::Euclidean => (&euclidean_distance, false),
             SimilarityAlgos::PearsonCorrelation => (&pearson_correlation, true),
-            SimilarityAlgos::PearsonBaseline => (&pearson_baseline_similarity, true),
             SimilarityAlgos::Spearman => (&spearman_correlation, true),
             SimilarityAlgos::MSD => (&msd_similarity, true),
         }

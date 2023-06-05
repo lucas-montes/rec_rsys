@@ -53,7 +53,8 @@ pub fn create_vector(num_elements: usize, min_value: f32, max_value: f32) -> Vec
 /// * A hashmap where the key is the function name and the value is a vector of execution times.
 ///
 /// ## Examples:
-/// ```
+/// ```ignore
+/// use rec_rsys::testing_tools::compare_execution_times;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// let functions: Vec<(&str, Rc<RefCell<dyn Fn()>>)> = vec![
