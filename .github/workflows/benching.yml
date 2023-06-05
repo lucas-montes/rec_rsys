@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: Benches
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  testing:
+    name: benching
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@master
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run cargo bench iai
+        run: cargo bench iai --all
