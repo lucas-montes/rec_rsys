@@ -1,6 +1,10 @@
 # RecSys
 A recommender system toolkit with more maths functions. Currently it's only used to learn and improve about this field, but feel free to participate.
 
+[![crates.io](https://img.shields.io/crates/v/rec_rsys.svg)](https://crates.io/crates/rec_rsys)
+[![Released API docs](https://docs.rs/rec_rsys/badge.svg)](https://docs.rs/rec_rsys)
+![example workflow](https://github.com/lucas-montes/rec_rsys/actions/workflows/ci.yml/badge.svg)
+
 ## Improvements
 1.- Primordial:
 - [ ] Fix possible errors in formulas
