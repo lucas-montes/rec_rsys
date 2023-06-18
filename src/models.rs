@@ -10,6 +10,7 @@
 //      date: String / DateTime,
 //      algorithm: String,
 // }
+use std::collections::HashMap;
 
 /// Generic model to perform calculations
 #[derive(Debug, Clone)]
@@ -54,10 +55,42 @@ impl<'a> PartialEq<Item> for &'a Item {
 
 impl<'a> PartialEq<&'a Item> for Item {
     fn eq(&self, other: &&'a Item) -> bool {
-        self == *other
+        self.id == other.id
     }
 }
 
 pub trait ItemAdapter {
     fn to_item(&self) -> Item;
+    fn create_values(&self) -> Vec<f32>;
+}
+
+pub fn one_hot_encode(labels: &[&str]) -> HashMap<String, Vec<f32>> {
+    let mut encoding_map: HashMap<String, Vec<f32>> = HashMap::new();
+
+    for label in labels {
+        let encoding: Vec<f32> = labels
+            .iter()
+            .map(|&l| if l == *label { 1.0 } else { 0.0 })
+            .collect();
+
+        encoding_map.insert(label.to_string(), encoding);
+    }
+
+    encoding_map
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_one_hot_encode() {
+        let labels = vec!["red", "blue", "green"];
+        let excpected: HashMap<String, Vec<f32>> = HashMap::from([
+            (String::from("blue"), vec![0.0, 1.0, 0.0]),
+            (String::from("green"), vec![0.0, 0.0, 1.0]),
+            (String::from("red"), vec![1.0, 0.0, 0.0]),
+        ]);
+        assert_eq!(one_hot_encode(&labels), excpected);
+    }
 }

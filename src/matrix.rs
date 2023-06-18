@@ -26,7 +26,7 @@ pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
 }
 
 /// Transpose a matrix using f32 values
-pub fn transpose_64(matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
+pub fn transpose_32(matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
     let cols: usize = matrix[0].len();
 
     if cols < 90 {
@@ -55,7 +55,8 @@ pub fn mean_along_axis(matrix: &[Vec<f32>], axis: usize) -> Vec<f32> {
     match axis {
         0 => (0..matrix[0].len())
             .map(|j: usize| {
-                matrix.iter().map(|row: &Vec<f32>| row[j]).sum::<f32>() / matrix.len() as f32
+                matrix.iter().map(|row: &Vec<f32>| row[j]).sum::<f32>()
+                    / matrix.len() as f32
             })
             .collect(),
         1 => matrix
@@ -86,7 +87,8 @@ pub fn mean_along_axis(matrix: &[Vec<f32>], axis: usize) -> Vec<f32> {
 pub fn covariance(data: &[Vec<f32>]) -> Vec<Vec<f32>> {
     let means: Vec<f32> = data.iter().map(vec_mean).collect();
 
-    let mut covariance_matrix: Vec<Vec<f32>> = vec![vec![0.0; data[0].len()]; data[0].len()];
+    let mut covariance_matrix: Vec<Vec<f32>> =
+        vec![vec![0.0; data[0].len()]; data[0].len()];
 
     for (i, row_i) in data.iter().enumerate() {
         for (j, row_j) in data.iter().enumerate().skip(i) {

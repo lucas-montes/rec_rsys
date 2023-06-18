@@ -10,9 +10,9 @@
 //! An awesome library (to learn currently) about recommender systems, maths and some other theory about ML.
 pub mod accuracy;
 pub mod algorithms;
+pub mod benchmarks;
 pub mod matrix;
 pub mod models;
 pub mod similarity;
 pub mod statistics;
-pub mod testing_tools;
 pub mod utils;

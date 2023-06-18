@@ -2,7 +2,8 @@
 use crate::models::Item;
 use crate::similarity::{
     adjusted_cosine_similarity, cosine_similarity, euclidean_distance, msd_similarity,
-    pearson_baseline_similarity, pearson_correlation, spearman_correlation, SimilarityAlgos,
+    pearson_baseline_similarity, pearson_correlation, spearman_correlation,
+    SimilarityAlgos,
 };
 use crate::utils::sort_with_direction;
 
@@ -25,12 +26,15 @@ impl KNN {
         let mut best_matches: Vec<Item> = Vec::new();
         self.references.iter().for_each(|item| {
             let cloned_item = item.clone();
-            best_matches.push(cloned_item.result(formula(&self.new_item.values, &item.values)))
+            best_matches
+                .push(cloned_item.result(formula(&self.new_item.values, &item.values)))
         });
 
         sort_and_trucate(best_matches, reverse, self.k)
     }
-    fn get_formula(algo: SimilarityAlgos) -> (&'static dyn Fn(&Vec<f32>, &Vec<f32>) -> f32, bool) {
+    fn get_formula(
+        algo: SimilarityAlgos,
+    ) -> (&'static dyn Fn(&Vec<f32>, &Vec<f32>) -> f32, bool) {
         match algo {
             SimilarityAlgos::Cosine => (&cosine_similarity, true),
             SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
@@ -87,9 +91,10 @@ mod tests {
 
     #[test]
     fn test_knn() {
-        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], 1.0);
-        let item2 = Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], 0.33);
-        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], 0.0);
+        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], Some(1.0));
+        let item2 =
+            Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], Some(0.33));
+        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], Some(0.0));
 
         assert_eq!(
             knn(
@@ -105,9 +110,10 @@ mod tests {
 
     #[test]
     fn test_sort_and_trucate() {
-        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], 1.0);
-        let item2 = Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], 0.33);
-        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], 0.0);
+        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], Some(1.0));
+        let item2 =
+            Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], Some(0.33));
+        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], Some(0.0));
         assert_eq!(
             sort_and_trucate(vec![item1.clone(), item2.clone(), item3], true, 2),
             vec![item1, item2]

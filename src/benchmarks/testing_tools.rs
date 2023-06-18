@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use crate::statistics::{mean, median, quartiles, standard_deviation};
 
@@ -19,29 +19,90 @@ struct CustomRng {
 }
 
 impl CustomRng {
-    fn new(seed: u64) -> CustomRng {
-        CustomRng { state: seed }
+    fn default() -> CustomRng {
+        CustomRng {
+            state: CustomRng::get_current_time(),
+        }
     }
 
-    fn next(&mut self) -> u32 {
-        self.state = self.state.wrapping_mul(6364136223846793005) + 1;
-        (self.state >> 32) as u32
+    fn new() -> CustomRng {
+        CustomRng::default()
+    }
+
+    fn seed(mut self, seed: u64) -> Self {
+        self.state = seed;
+        self
+    }
+
+    fn next(&mut self) -> u64 {
+        let mut x = self.state;
+        let current_time = CustomRng::get_current_time();
+        let time_string = current_time.to_string();
+        let digits = time_string
+            .chars()
+            .filter_map(|c| c.to_digit(10))
+            .collect::<Vec<u32>>();
+        for chunk in digits.chunks(2) {
+            let r = chunk.iter().sum::<u32>();
+            if r < 12 {
+                x ^= x << r
+            } else {
+                x ^= x >> r
+            }
+        }
+        self.state = x;
+        x
+    }
+
+    fn get_current_time() -> u64 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Clock may have gone backwards")
+            .as_secs()
+            / 3600
+    }
+
+    fn random_f32(&mut self, min: f32, max: f32) -> f32 {
+        min + (self.next() as f32 / u32::MAX as f32) * (max - min)
+    }
+
+    fn random_number<T>(&mut self, min: T, max: T) -> T
+    where
+        T: std::ops::Sub<Output = T>
+            + std::ops::Mul<Output = T>
+            + std::ops::Add<Output = T>
+            + std::ops::Rem<Output = T>
+            + std::ops::Div<Output = T>
+            + Copy
+            + From<u64>,
+    {
+        min + (max - min * T::from(self.next()) % T::from(u64::MAX)) / T::from(u64::MAX)
     }
 }
 
 // Function to create a vector with random values within a range
 pub fn create_vector(num_elements: usize, min_value: f32, max_value: f32) -> Vec<f32> {
     let mut vec: Vec<f32> = Vec::with_capacity(num_elements);
-    let mut rng: CustomRng = CustomRng::new(0);
-
+    let mut rng: CustomRng = CustomRng::new();
     for _ in 0..num_elements {
-        let value = (rng.next() % (max_value - min_value + 1.0) as u32) as f32 + min_value;
-        vec.push(value);
+        vec.push(rng.random_f32(min_value, max_value));
     }
-
     vec
 }
 
+// Function to craete a matrix
+pub fn create_matrix(
+    num_rows: usize,
+    num_cols: usize,
+    min_value: f32,
+    max_value: f32,
+) -> Vec<Vec<f32>> {
+    let mut vec: Vec<Vec<f32>> = Vec::with_capacity(num_rows);
+    for _ in 0..num_rows {
+        vec.push(create_vector(num_cols, min_value, max_value));
+    }
+    vec
+}
 /// # Compare Execution Times
 /// Compares the execution times of multiple functions and stores the results.
 ///
@@ -197,4 +258,51 @@ pub fn test_implementation() {
     //     println!("---------------------------------");
     //     println!("---------------------------------");
     // }
+}
+struct NewCustomRng {
+    state: u64,
+}
+
+impl NewCustomRng {
+    fn new() -> NewCustomRng {
+        NewCustomRng {
+            state: CustomRng::new().state,
+        }
+    }
+
+    fn next(&mut self) -> u32 {
+        let mut x = self.state;
+        x ^= x << 13;
+        x ^= x >> 17;
+        x ^= x << 5;
+        self.state = x;
+        (x & 0xFFFFFFFF) as u32
+    }
+
+    fn random_f32(&mut self, min: f32, max: f32) -> f32 {
+        let rand_val = self.next() as f32 / u32::MAX as f32;
+        min + (max - min) * rand_val
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_current_time() {
+        let mut current_time = CustomRng::new();
+        println!(
+            "number: {:?}",
+            current_time.next() as f64 / u64::MAX as f64 * 10e5
+        );
+    }
+
+    #[test]
+    fn random_f() {
+        let mut rng = NewCustomRng::new();
+        let result = rng.random_f32(-1.0, 1.0);
+        println!("Random f32: {}", result);
+        println!("number: {:?}", CustomRng::new().random_f32(-1.0, 1.0));
+    }
 }
