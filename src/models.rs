@@ -79,6 +79,23 @@ pub fn one_hot_encode(labels: &[&str]) -> HashMap<String, Vec<f32>> {
     encoding_map
 }
 
+pub fn sum_encoding_vectors(
+    encoding_map: &HashMap<String, Vec<f32>>,
+    values: &[String],
+) -> Vec<f32> {
+    let mut sum_vector = vec![0.0; encoding_map.values().next().map_or(0, |v| v.len())];
+
+    for value in values {
+        if let Some(encoding) = encoding_map.get(value) {
+            for (sum_value, &enc_value) in sum_vector.iter_mut().zip(encoding.iter()) {
+                *sum_value += enc_value;
+            }
+        }
+    }
+
+    sum_vector
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -86,11 +103,25 @@ mod tests {
     #[test]
     fn test_one_hot_encode() {
         let labels = vec!["red", "blue", "green"];
-        let excpected: HashMap<String, Vec<f32>> = HashMap::from([
+        let expected: HashMap<String, Vec<f32>> = HashMap::from([
             (String::from("blue"), vec![0.0, 1.0, 0.0]),
             (String::from("green"), vec![0.0, 0.0, 1.0]),
             (String::from("red"), vec![1.0, 0.0, 0.0]),
         ]);
-        assert_eq!(one_hot_encode(&labels), excpected);
+        assert_eq!(one_hot_encode(&labels), expected);
+    }
+
+    #[test]
+    fn test_sum_encoding_vectors() {
+        let labels = vec!["red".to_string(), "blue".to_string()];
+        let encoding_map: HashMap<String, Vec<f32>> = HashMap::from([
+            (String::from("blue"), vec![0.0, 1.0, 0.0]),
+            (String::from("green"), vec![0.0, 0.0, 1.0]),
+            (String::from("red"), vec![1.0, 0.0, 0.0]),
+        ]);
+        assert_eq!(
+            sum_encoding_vectors(&encoding_map, &labels),
+            vec![1.0, 1.0, 0.0]
+        );
     }
 }
