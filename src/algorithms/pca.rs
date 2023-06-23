@@ -1,4 +1,6 @@
-use crate::matrix::{covariance, mean_along_axis, subtract_vector_from_matrix, transpose};
+use crate::matrix::{
+    covariance, mean_along_axis, subtract_vector_from_matrix, transpose,
+};
 /// # PCA (Principal Component Analysis)
 /// PCA is a dimensionality reduction technique that finds the principal components in the data.
 /// It identifies the directions (principal components) in which the data varies the most and projects the data onto those components,
@@ -15,26 +17,7 @@ use crate::matrix::{covariance, mean_along_axis, subtract_vector_from_matrix, tr
 /// let transformed_data = pca.transform(&data);
 /// ```
 ///
-/// ## Explanation:
-/// PCA computes the principal components by performing the following steps:
-/// 1. Mean centering the data.
-/// 2. Calculating the covariance matrix.
-/// 3. Finding the eigenvalues and eigenvectors of the covariance matrix.
-/// 4. Sorting the eigenvectors based on their corresponding eigenvalues.
-/// 5. Selecting the top `n_components` eigenvectors as the principal components.
-///
-/// ## Formula:
-/// The formula for PCA is as follows:
-///
-/// ```katex
-/// X_{\text{transformed}} = X - \bar{X} \cdot V^T
-/// ```
-///
-/// ### Where:
-/// * `X_{\text{transformed}}` represents the transformed data matrix.
-/// * `X` is the original data matrix.
-/// * `\bar{X}` represents the mean of each feature.
-/// * `V` represents the matrix of eigenvectors (principal components).
+#[doc = include_str!("../docs/algorithms/pca.md")]
 pub struct PCA {
     n_components: usize,
     components: Option<Vec<Vec<f32>>>,
@@ -67,7 +50,8 @@ impl PCA {
         let mut eigenvecs = transpose(&eigenvectors);
         let mut idxs: Vec<usize> = (0..x[0].len()).collect();
         idxs.sort_by(|&i, &j| eigenvalues[j].partial_cmp(&eigenvalues[i]).unwrap());
-        let sorted_eigenvalues = idxs.iter().map(|&i| eigenvalues[i]).collect::<Vec<f32>>();
+        let sorted_eigenvalues =
+            idxs.iter().map(|&i| eigenvalues[i]).collect::<Vec<f32>>();
         eigenvecs = idxs
             .iter()
             .map(|&i| eigenvecs[i].clone())
@@ -94,7 +78,8 @@ impl PCA {
 
             for j in 0..self.n_components {
                 for k in 0..num_features {
-                    transformed_x[i][j] += centered_x[k] * self.components.as_ref().unwrap()[j][k];
+                    transformed_x[i][j] +=
+                        centered_x[k] * self.components.as_ref().unwrap()[j][k];
                 }
             }
         }

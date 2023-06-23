@@ -14,8 +14,7 @@
 /// ## Returns:
 /// * The Root Mean Squared Error.
 ///
-/// ## Formula:
-/// $$ \sqrt{\sum_{i = 1}^{n}\frac{(y_i - x_i)²}{n}} $$
+#[doc = include_str!("../docs/accuracy/rmse.md")]
 pub fn rmse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
     mse(predicted, actual).sqrt()
 }
@@ -29,8 +28,7 @@ pub fn rmse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * The Mean Squared Error.
 ///
-/// ## Formula:
-/// $$ \frac{1}{n}\sum_{i = 1}^{n}(y_i - x_i)² $$
+#[doc = include_str!("../docs/accuracy/mse.md")]
 pub fn mse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
     actual
         .iter()
@@ -49,9 +47,7 @@ pub fn mse(predicted: &[f32], actual: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * The Mean Absolute Error.
 ///
-/// ## Formula:
-/// $$\sum_{i = 1}^{n}|y_i - x_i|$$
-///
+#[doc = include_str!("../docs/accuracy/mae.md")]
 pub fn mae(predicted: &Vec<f32>, actual: &Vec<f32>) -> f32 {
     actual
         .iter()
@@ -72,8 +68,7 @@ pub fn mae(predicted: &Vec<f32>, actual: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * Average reciprocal hit rate.
 ///
-/// ## Formula:
-/// $$ \frac{\sum_{i = 1}^{n}\frac{1}{rank_i}}{users} $$
+#[doc = include_str!("../docs/accuracy/arhr.md")]
 pub fn arhr(hits_ranks: Vec<u32>, number_users: u32) -> u32 {
     hits_ranks.iter().map(|rank: &u32| 1 / rank).sum::<u32>() / number_users
 }
@@ -87,8 +82,7 @@ pub fn arhr(hits_ranks: Vec<u32>, number_users: u32) -> u32 {
 /// ## Returns:
 /// * Hit Rate.
 ///
-/// ## Formula:
-/// /// $$ \frac{hits}{users} $$
+#[doc = include_str!("../docs/accuracy/hit_rate.md")]
 pub fn hit_rate(number_hits: u32, number_users: u32) -> u32 {
     number_hits / number_users
 }
@@ -101,6 +95,8 @@ pub fn hit_rate(number_hits: u32, number_users: u32) -> u32 {
 ///
 /// ## Returns:
 /// * Hit Rate.
+///
+#[doc = include_str!("../docs/accuracy/vec_hit_rate.md")]
 pub fn vec_hit_rate(hits: Vec<u32>, users: Vec<u32>) -> u32 {
     hits.iter().sum::<u32>() / users.len() as u32
 }
@@ -115,14 +111,7 @@ pub fn vec_hit_rate(hits: Vec<u32>, users: Vec<u32>) -> u32 {
 /// ## Returns:
 /// * The Cumulative Hit Rate (CHR).
 ///
-/// ## Explanation:
-/// The Cumulative Hit Rate (CHR) measures the accuracy of a recommender system by calculating the ratio of correctly
-/// predicted items to the total number of items. It is a simple evaluation metric commonly used in recommendation
-/// systems to assess the system's ability to recommend relevant items. A higher CHR indicates a higher accuracy
-/// in predicting the items of interest.
-///
-/// ## Formula:
-/// $$ \text{CHR} = \frac{{\text{Number of correctly predicted items}}}{{\text{Total number of items}}} $$
+#[doc = include_str!("../docs/accuracy/cumulative_hit_rate.md")]
 fn cumulative_hit_rate(predicted_items: &[u32], true_items: &[u32]) -> f32 {
     predicted_items
         .iter()

@@ -11,13 +11,7 @@ use super::utils::local_sort;
 /// ## Returns:
 /// * The mean value of the data.
 ///
-/// ## Formula:
-/// $$ \text{mean} = \frac{{\sum_{i=1}^{n} x_i}}{{n}} $$
-///
-/// ## Explanation:
-/// The mean is calculated by summing up all the data points in the set
-/// and dividing the sum by the total number of data points. It represents the central
-/// tendency or average value of the data set.
+#[doc = include_str!("../docs/statistics/mean.md")]
 pub fn mean(data: &Vec<f32>) -> f32 {
     data.iter().sum::<f32>() / data.len() as f32
 }
@@ -31,13 +25,7 @@ pub fn mean(data: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * A tuple (Q1, Q3) containing the first and third quartiles of the data.
 ///
-/// Formula for first quartile (Q1): Q1 = \text{median}(\text{lower half of the sorted data})
-/// Formula for third quartile (Q3): Q3 = \text{median}(\text{upper half of the sorted data})
-///
-/// ## Explanation:
-/// Quartiles divide a data set into four equal parts, each containing approximately
-/// 25% of the data. The first quartile (Q1) is the median of the lower half of the sorted data,
-/// and the third quartile (Q3) is the median of the upper half of the sorted data.
+#[doc = include_str!("../docs/statistics/quartiles.md")]
 pub fn quartiles(data: &mut Vec<f32>) -> (f32, f32) {
     local_sort(data);
     let q1: f32 = percentile_of_sorted(data, 25_f32);
@@ -54,15 +42,7 @@ pub fn quartiles(data: &mut Vec<f32>) -> (f32, f32) {
 /// ## Returns:
 /// * The value at the specified percentile.
 ///
-/// ## Formula:
-/// $$ \text{percentile} = L + (U - L) \cdot (P - \text{floor}(P)) $$
-///
-/// ## Explanation:
-/// The percentile calculation is based on linear interpolation. Given a sorted
-/// set of samples, the percentile formula calculates the value at the desired percentile (P)
-/// by interpolating between the lower value (L) and the upper value (U) closest to the rank
-/// corresponding to the desired percentile. The interpolation factor is determined by the
-/// fractional part of the rank.
+#[doc = include_str!("../docs/statistics/percentile_of_sorted.md")]
 fn percentile_of_sorted(sorted_samples: &Vec<f32>, pct: f32) -> f32 {
     let sorted_len = sorted_samples.len();
     if sorted_len == 1 {
@@ -87,10 +67,7 @@ fn percentile_of_sorted(sorted_samples: &Vec<f32>, pct: f32) -> f32 {
 /// ## Returns:
 /// * The median value of the data.
 ///
-/// ## Explanation:
-/// The median is the middle value of a set of data when it is sorted in ascending order.
-/// If the number of data points is odd, the median is the middle value. If the number of data points
-/// is even, the median is the average of the two middle values.
+#[doc = include_str!("../docs/statistics/median.md")]
 pub fn median(data: &Vec<f32>) -> f32 {
     percentile_of_sorted(data, 50_f32)
 }
@@ -105,13 +82,7 @@ pub fn median(data: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * The covariance between x and y.
 ///
-/// ## Formula:
-/// $$ Cov(x, y) = \frac{{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}}{{n}} $$
-///
-/// ## Explanation:
-/// The covariance measures the direction and magnitude of the linear relationship
-/// between two sets of data, x and y. It calculates the sum of the products of the deviations
-/// of each data point from their respective means, divided by the number of data points.
+#[doc = include_str!("../docs/statistics/median_abs_dev.md")]
 pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
     let mean_x = mean(x);
     let mean_y = mean(y);
@@ -149,16 +120,7 @@ pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 /// assert_eq!(variance(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 2.0);
 /// ```
 ///
-/// ## Explanation:
-/// The variance of a set of data points is calculated by finding the average of the squared differences between each data point and the mean of the data. It measures how much the data points deviate from the mean.
-///
-/// ## Formula:
-/// $$ \text{{Variance}} = \frac{1}{n} \sum_{i=1}^{n} (x_i - \mu)^2 $$
-///
-/// ### Where:
-/// * \(n\) is the number of data points.
-/// * \(x_i\) is the \(i\)th data point.
-/// * \(\mu\) is the mean of the data points.
+#[doc = include_str!("../docs/statistics/variance.md")]
 pub fn variance(data: &Vec<f32>) -> f32 {
     let mean = mean(data);
     data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>() / data.len() as f32
@@ -173,15 +135,7 @@ pub fn variance(data: &Vec<f32>) -> f32 {
 /// ## Returns:
 /// * The standard deviation of the data.
 ///
-/// ## Formula:
-/// \text{std\_deviation} = \sqrt{\frac{{\sum_{i=1}^{n} (x_i - \bar{x})^2}}{{n}}}
-///
-/// ## Explanation:
-/// The standard deviation measures the amount of variation or dispersion
-/// in a set of data. It is calculated by first finding the deviations of each data point
-/// from the mean, squaring the deviations, summing them up, dividing by the number of data
-/// points, and then taking the square root. The standard deviation indicates how spread out
-/// the data points are around the mean.
+#[doc = include_str!("../docs/statistics/standard_deviation.md")]
 pub fn standard_deviation(data: &Vec<f32>) -> f32 {
     let mean = mean(data);
     let sum_squared_deviations = data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>();
@@ -189,6 +143,7 @@ pub fn standard_deviation(data: &Vec<f32>) -> f32 {
 }
 
 /// TODO
+/// #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
 pub fn standard_deviation_pct(data: &Vec<f32>) -> f32 {
     (standard_deviation(data) / mean(data)) * 100_f32
 }
@@ -204,6 +159,7 @@ pub fn median_abs_dev(data: &Vec<f32>) -> f32 {
 }
 
 /// TODO
+/// #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
 pub fn median_abs_dev_pct(data: &Vec<f32>) -> f32 {
     (median_abs_dev(data) / median(data)) * 100_f32
 }
