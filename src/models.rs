@@ -62,6 +62,7 @@ impl<'a> PartialEq<&'a Item> for Item {
 pub trait ItemAdapter {
     fn to_item(&self) -> Item;
     fn create_values(&self) -> Vec<f32>;
+    fn get_references(&self) -> Vec<Item>;
 }
 
 pub fn one_hot_encode(labels: &[&str]) -> HashMap<String, Vec<f32>> {

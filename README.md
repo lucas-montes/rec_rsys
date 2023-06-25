@@ -47,6 +47,13 @@ A recommender system toolkit with more maths functions. Currently it's only used
 /// ## Examples:
 /// [Examples]
 /// 
+#[doc = include_str!("../docs/example/example.md")]
+pub fn example(){}
+```
+In the folder docs/ create a new .md file with the mathematical formula, explanation and examples if necessary.
+```rust
+/// # [Name of the concept]
+/// 
 /// ## Explanation:
 /// [Explanation of the mathematical concept]
 /// 

@@ -12,7 +12,7 @@ use super::utils::local_sort;
 /// * The mean value of the data.
 ///
 #[doc = include_str!("../docs/statistics/mean.md")]
-pub fn mean(data: &Vec<f32>) -> f32 {
+pub fn mean(data: &[f32]) -> f32 {
     data.iter().sum::<f32>() / data.len() as f32
 }
 
@@ -26,7 +26,7 @@ pub fn mean(data: &Vec<f32>) -> f32 {
 /// * A tuple (Q1, Q3) containing the first and third quartiles of the data.
 ///
 #[doc = include_str!("../docs/statistics/quartiles.md")]
-pub fn quartiles(data: &mut Vec<f32>) -> (f32, f32) {
+pub fn quartiles(data: &mut [f32]) -> (f32, f32) {
     local_sort(data);
     let q1: f32 = percentile_of_sorted(data, 25_f32);
     let q3: f32 = percentile_of_sorted(data, 75_f32);
@@ -43,7 +43,7 @@ pub fn quartiles(data: &mut Vec<f32>) -> (f32, f32) {
 /// * The value at the specified percentile.
 ///
 #[doc = include_str!("../docs/statistics/percentile_of_sorted.md")]
-fn percentile_of_sorted(sorted_samples: &Vec<f32>, pct: f32) -> f32 {
+fn percentile_of_sorted(sorted_samples: &[f32], pct: f32) -> f32 {
     let sorted_len = sorted_samples.len();
     if sorted_len == 1 {
         return sorted_samples[0];
@@ -68,7 +68,7 @@ fn percentile_of_sorted(sorted_samples: &Vec<f32>, pct: f32) -> f32 {
 /// * The median value of the data.
 ///
 #[doc = include_str!("../docs/statistics/median.md")]
-pub fn median(data: &Vec<f32>) -> f32 {
+pub fn median(data: &[f32]) -> f32 {
     percentile_of_sorted(data, 50_f32)
 }
 
@@ -83,7 +83,7 @@ pub fn median(data: &Vec<f32>) -> f32 {
 /// * The covariance between x and y.
 ///
 #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
-pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
+pub fn covariance(x: &[f32], y: &[f32]) -> f32 {
     let mean_x = mean(x);
     let mean_y = mean(y);
 
@@ -121,7 +121,7 @@ pub fn covariance(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 /// ```
 ///
 #[doc = include_str!("../docs/statistics/variance.md")]
-pub fn variance(data: &Vec<f32>) -> f32 {
+pub fn variance(data: &[f32]) -> f32 {
     let mean = mean(data);
     data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>() / data.len() as f32
 }
@@ -136,7 +136,7 @@ pub fn variance(data: &Vec<f32>) -> f32 {
 /// * The standard deviation of the data.
 ///
 #[doc = include_str!("../docs/statistics/standard_deviation.md")]
-pub fn standard_deviation(data: &Vec<f32>) -> f32 {
+pub fn standard_deviation(data: &[f32]) -> f32 {
     let mean = mean(data);
     let sum_squared_deviations = data.iter().map(|&x| (x - mean).powi(2)).sum::<f32>();
     (sum_squared_deviations / data.len() as f32).sqrt()
@@ -144,13 +144,13 @@ pub fn standard_deviation(data: &Vec<f32>) -> f32 {
 
 /// TODO
 /// #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
-pub fn standard_deviation_pct(data: &Vec<f32>) -> f32 {
+pub fn standard_deviation_pct(data: &[f32]) -> f32 {
     (standard_deviation(data) / mean(data)) * 100_f32
 }
 
 /// TODO
 #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
-pub fn median_abs_dev(data: &Vec<f32>) -> f32 {
+pub fn median_abs_dev(data: &[f32]) -> f32 {
     let med = median(data);
     let abs_devs: Vec<f32> = data.iter().map(|&v| (med - v).abs()).collect();
     // This constant is derived by smarter statistics brains than me, but it is
@@ -160,7 +160,7 @@ pub fn median_abs_dev(data: &Vec<f32>) -> f32 {
 
 /// TODO
 /// #[doc = include_str!("../docs/statistics/median_abs_dev.md")]
-pub fn median_abs_dev_pct(data: &Vec<f32>) -> f32 {
+pub fn median_abs_dev_pct(data: &[f32]) -> f32 {
     (median_abs_dev(data) / median(data)) * 100_f32
 }
 

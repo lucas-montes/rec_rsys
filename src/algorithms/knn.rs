@@ -7,6 +7,8 @@ use crate::similarity::{
 };
 use crate::utils::sort_with_direction;
 
+type ParamDistanceFunction = dyn Fn(&[f32], &[f32]) -> f32;
+
 pub struct KNN {
     new_item: Item,
     references: Vec<Item>,
@@ -32,9 +34,7 @@ impl KNN {
 
         sort_and_trucate(best_matches, reverse, self.k)
     }
-    fn get_formula(
-        algo: SimilarityAlgos,
-    ) -> (&'static dyn Fn(&Vec<f32>, &Vec<f32>) -> f32, bool) {
+    fn get_formula(algo: SimilarityAlgos) -> (&'static ParamDistanceFunction, bool) {
         match algo {
             SimilarityAlgos::Cosine => (&cosine_similarity, true),
             SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
@@ -60,7 +60,7 @@ fn knn(
     new_input: Item,
     mut references: Vec<Item>,
     k: u8,
-    formula: impl Fn(&Vec<f32>, &Vec<f32>) -> f32,
+    formula: impl Fn(&[f32], &[f32]) -> f32,
     reverse: bool,
 ) -> Vec<Item> {
     references
@@ -85,7 +85,7 @@ mod tests {
     use super::*;
     use crate::models::Item;
 
-    fn mock(_: &Vec<f32>, m1: &Vec<f32>) -> f32 {
+    fn mock(_: &[f32], m1: &[f32]) -> f32 {
         m1[0]
     }
 

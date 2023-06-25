@@ -85,7 +85,7 @@ pub fn mean_along_axis(matrix: &[Vec<f32>], axis: usize) -> Vec<f32> {
 /// between two sets of data, x and y. It calculates the sum of the products of the deviations
 /// of each data point from their respective means, divided by the number of data points.
 pub fn covariance(data: &[Vec<f32>]) -> Vec<Vec<f32>> {
-    let means: Vec<f32> = data.iter().map(vec_mean).collect();
+    let means: Vec<f32> = data.iter().map(|v| vec_mean(v)).collect();
 
     let mut covariance_matrix: Vec<Vec<f32>> =
         vec![vec![0.0; data[0].len()]; data[0].len()];

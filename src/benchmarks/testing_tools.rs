@@ -5,6 +5,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use crate::statistics::{mean, median, quartiles, standard_deviation};
 
+type ParamFunction = Rc<RefCell<dyn Fn()>>;
+type ParamFunctionTuple = (&'static str, ParamFunction);
+
 pub fn timeit<F>(method: F) -> Duration
 where
     F: FnOnce(),
@@ -118,7 +121,7 @@ pub fn create_matrix(
 /// use rec_rsys::testing_tools::compare_execution_times;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
-/// let functions: Vec<(&str, Rc<RefCell<dyn Fn()>>)> = vec![
+/// let functions: Vec<ParamFunctionTuple> = vec![
 /// (
 ///     "Transpose Matrix",
 ///     Rc::new(RefCell::new(move || {
@@ -134,7 +137,8 @@ pub fn create_matrix(
 /// ];
 /// let results = compare_execution_times(100, functions);
 /// ```
-pub fn compare_execution_times(n: u64, functions: Vec<(&str, Rc<RefCell<dyn Fn()>>)>) {
+///
+pub fn compare_execution_times(n: u64, functions: Vec<ParamFunctionTuple>) {
     let mut results: HashMap<String, Vec<Duration>> = HashMap::new();
 
     for (name, function) in functions {
@@ -218,7 +222,7 @@ fn analyze_execution_results(results: HashMap<String, Vec<Duration>>) {
     }
 }
 
-fn durations_to_f32s(durations: &Vec<Duration>) -> Vec<f32> {
+fn durations_to_f32s(durations: &[Duration]) -> Vec<f32> {
     durations
         .iter()
         .map(|duration| duration.as_secs_f32())

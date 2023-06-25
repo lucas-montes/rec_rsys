@@ -10,7 +10,7 @@
 ///
 /// ## Returns:
 /// The dot product of the two vectors.
-pub fn dot(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
+pub fn dot(vec1: &[f32], vec2: &[f32]) -> f32 {
     vec1.iter().zip(vec2.iter()).map(|(&x, &y)| x * y).sum()
 }
 
@@ -22,12 +22,12 @@ pub fn dot(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 ///
 /// ## Returns:
 /// The magnitude of the vector.
-pub fn euclidean_norm(vec: &Vec<f32>) -> f32 {
+pub fn euclidean_norm(vec: &[f32]) -> f32 {
     vec.iter().map(|&x| x * x).sum::<f32>().sqrt()
 }
 
 /// TODO
-pub fn squared_diff_sum(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
+pub fn squared_diff_sum(vec1: &[f32], vec2: &[f32]) -> f32 {
     vec1.iter()
         .zip(vec2.iter())
         .map(|(a, p)| (a - p).powi(2))
@@ -35,7 +35,7 @@ pub fn squared_diff_sum(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 }
 
 /// TODO
-pub fn local_sort(v: &mut Vec<f32>) {
+pub fn local_sort(v: &mut [f32]) {
     v.sort_by(|x: &f32, y: &f32| x.total_cmp(y))
 }
 
@@ -51,7 +51,7 @@ pub fn local_sort(v: &mut Vec<f32>) {
 /// Perform an indirect sort along the given axis (-1).
 /// It returns an array of indices of the same shape as
 /// `vector` that index data along the given axis in sorted order.
-pub fn argsort(vector: &Vec<f32>) -> Vec<f32> {
+pub fn argsort(vector: &[f32]) -> Vec<f32> {
     let mut indexed_vector: Vec<(usize, &f32)> = vector.iter().enumerate().collect();
     indexed_vector.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     indexed_vector.iter().map(|(i, _)| *i as f32).collect()
@@ -61,7 +61,7 @@ pub fn argsort(vector: &Vec<f32>) -> Vec<f32> {
 /// with the option to reverse the sort order if `reverse` is `true`.
 ///
 /// ## Parameters:
-/// * `vector`: The vector to be sorted.
+/// * `v`: The vector to be sorted.
 /// * `compare_fn`: The comparison function that compares two elements and returns an `Ordering`.
 ///                  It should take two references to elements of type `T` and return an `Ordering` value.
 /// * `reverse`: A flag indicating whether to sort the elements in reverse order.
@@ -77,14 +77,14 @@ pub fn argsort(vector: &Vec<f32>) -> Vec<f32> {
 /// sort_with_direction(&mut numbers, |a, b| a.cmp(b), true);
 /// println!("Descending order: {:?}", numbers);
 /// ```
-pub fn sort_with_direction<T, F>(vector: &mut [T], compare_fn: F, reverse: bool)
+pub fn sort_with_direction<T, F>(v: &mut [T], compare_fn: F, reverse: bool)
 where
     F: Fn(&T, &T) -> std::cmp::Ordering,
 {
     if reverse {
-        vector.sort_by(|a, b| compare_fn(b, a));
+        v.sort_by(|a, b| compare_fn(b, a));
     } else {
-        vector.sort_by(compare_fn);
+        v.sort_by(compare_fn);
     }
 }
 

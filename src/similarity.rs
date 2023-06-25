@@ -36,8 +36,8 @@ pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f32 {
 /// Compute the cosine similarity between two vectors.
 ///
 /// ## Parameters:
-/// * `vec1`: The first vector.
-/// * `vec2`: The second vector.
+/// * `u`: The first vector.
+/// * `v`: The second vector.
 ///
 /// ## Returns:
 /// The cosine similarity between the two vectors.
@@ -47,17 +47,17 @@ pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f32 {
 /// ```
 /// ```
 ///
-#[doc = include_str!("../docs/similarity/cosine_similarity.md")]
-pub fn cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
-    dot(vec1, vec2) / (euclidean_norm(vec1) * euclidean_norm(vec2))
+#[doc = include_str!("../docs/norms/cosine_similarity.md")]
+pub fn cosine_similarity(u: &[f32], v: &[f32]) -> f32 {
+    dot(u, v) / (euclidean_norm(u) * euclidean_norm(v))
 }
 
 /// # Adjusted Cosine Similarity
 /// Function to calculate the Adjusted Cosine Similarity between two items.
 ///
 /// ## Parameters:
-/// * `ratings_a`: The ratings of item A by the users.
-/// * `ratings_b`: The ratings of item B by the users.
+/// * `u`: The ratings of item A by the users.
+/// * `v`: The ratings of item B by the users.
 ///
 /// ## Returns:
 /// * The Adjusted Cosine Similarity between items A and B.
@@ -68,17 +68,16 @@ pub fn cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/adjusted_cosine_similarity.md")]
-pub fn adjusted_cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
-    dot(vec1, vec2) / (euclidean_norm(vec1) * euclidean_norm(vec2))
+pub fn adjusted_cosine_similarity(u: &[f32], v: &[f32]) -> f32 {
+    dot(u, v) / (euclidean_norm(u) * euclidean_norm(v))
 }
 
 /// # Compute the euclidean distance.
-/// Measure the similarity between two users according to their distance
-/// Closer to 0.0 better.
+/// Measure the similarity between two vectors according to their distance
 ///
 /// ## Parameters:
-/// * `vec1`: The first vector.
-/// * `vec2`: The second vector.
+/// * `u`: The first vector.
+/// * `v`: The second vector.
 ///
 /// ## Returns:
 /// The euclidean distance between the two vectors.
@@ -88,9 +87,9 @@ pub fn adjusted_cosine_similarity(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// ```
 /// ```
 ///
-#[doc = include_str!("../docs/similarity/euclidean_distance.md")]
-pub fn euclidean_distance(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
-    squared_diff_sum(vec1, vec2).sqrt()
+#[doc = include_str!("../docs/norms/euclidean_distance.md")]
+pub fn euclidean_distance(u: &[f32], v: &[f32]) -> f32 {
+    squared_diff_sum(u, v).sqrt()
 }
 
 /// # Exponential Decay Similarity
@@ -100,6 +99,9 @@ pub fn euclidean_distance(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// * `value1`: The first value for comparison.
 /// * `value2`: The second value for comparison.
 /// * `decay_rate`: The decay rate to determine the decay factor.
+///
+/// ## Returns:
+/// The calculated similarity value as a `f32` (floating-point number) between 0 and 1.
 ///
 /// ## Examples:
 /// ```
@@ -111,9 +113,6 @@ pub fn euclidean_distance(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// println!("Similarity: {}", similarity);
 /// ```
 ///
-/// ## Returns:
-/// The calculated similarity value as a `f32` (floating-point number) between 0 and 1.
-///
 #[doc = include_str!("../docs/similarity/exponential_decay_similarity.md")]
 pub fn exponential_decay_similarity(value1: f32, value2: f32, decay_rate: f32) -> f32 {
     (-(value1 - value2).abs() / decay_rate).exp()
@@ -123,8 +122,8 @@ pub fn exponential_decay_similarity(value1: f32, value2: f32, decay_rate: f32) -
 /// Function to calculate the Pearson correlation coefficient between two sets of data.
 ///
 /// ## Parameters:
-/// * `x`: The first set of data.
-/// * `y`: The second set of data.
+/// * `u`: The first set of data.
+/// * `v`: The second set of data.
 ///
 /// ## Returns:
 /// * The Pearson correlation coefficient (r) between x and y.
@@ -135,17 +134,17 @@ pub fn exponential_decay_similarity(value1: f32, value2: f32, decay_rate: f32) -
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/pearson_correlation.md")]
-pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
-    let mean_vec1 = mean(vec1);
-    let mean_vec2 = mean(vec2);
+pub fn pearson_correlation(u: &[f32], v: &[f32]) -> f32 {
+    let mean_u = mean(u);
+    let mean_v = mean(v);
 
     let mut covariance = 0.0;
     let mut variance_x = 0.0;
     let mut variance_y = 0.0;
 
-    vec1.iter().zip(vec2.iter()).for_each(|(x, y)| {
-        let deviation_x = x - mean_vec1;
-        let deviation_y = y - mean_vec2;
+    u.iter().zip(v.iter()).for_each(|(x, y)| {
+        let deviation_x = x - mean_u;
+        let deviation_y = y - mean_v;
 
         covariance += deviation_x * deviation_y;
         variance_x += deviation_x * deviation_x;
@@ -159,8 +158,8 @@ pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// Function to calculate the Pearson Baseline similarity between two vectors, incorporating baseline estimates.
 ///
 /// ## Parameters:
-/// * `vec1`: The first vector of ratings.
-/// * `vec2`: The second vector of ratings.
+/// * `u`: The first vector of ratings.
+/// * `v`: The second vector of ratings.
 /// * `shrinkage`: The shrinkage for the vectors.
 ///
 /// ## Returns:
@@ -172,30 +171,18 @@ pub fn pearson_correlation(vec1: &Vec<f32>, vec2: &Vec<f32>) -> f32 {
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/pearson_baseline_similarity.md")]
-pub fn pearson_baseline_similarity(
-    vec1: &Vec<f32>,
-    vec2: &Vec<f32>,
-    shrinkage: f32,
-) -> f32 {
-    // let intersection_count = vec1
-    //     .iter()
-    //     .zip(vec2.iter())
-    //     .filter(|&(a, b)| !a.is_nan() && !b.is_nan())
-    //     .count();
-
-    // let adjusted_intersection = intersection_count.checked_sub(1).unwrap_or(0) as f32;
-    let adjusted_intersection = vec1.len().checked_sub(1).unwrap_or(0) as f32;
-
+pub fn pearson_baseline_similarity(u: &[f32], v: &[f32], shrinkage: f32) -> f32 {
+    let adjusted_intersection = u.len().saturating_sub(1) as f32;
     (adjusted_intersection / (adjusted_intersection + shrinkage))
-        * pearson_correlation(vec1, vec2)
+        * pearson_correlation(u, v)
 }
 
 /// # Mean Squared Difference
 /// Function to calculate the Mean Squared Difference (MSD).
 ///
 /// ## Parameters:
-/// * `x`: The first vector.
-/// * `y`: The second vector.
+/// * `u`: The first vector.
+/// * `v`: The second vector.
 ///
 /// ## Returns:
 /// * The MSD between the vectors.
@@ -206,15 +193,15 @@ pub fn pearson_baseline_similarity(
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/msd.md")]
-pub fn msd(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
-    squared_diff_sum(x, y) / x.len() as f32
+pub fn msd(u: &[f32], v: &[f32]) -> f32 {
+    squared_diff_sum(u, v) / u.len() as f32
 }
 
 /// # Mean Squared Difference Similarity
 ///
 /// ## Parameters:
-/// * `x`: Vector of user's ratings.
-/// * `y`: Vector of user's ratings.
+/// * `u`: Vector of user's ratings.
+/// * `v`: Vector of user's ratings.
 ///
 /// ## Returns:
 /// * The MSD similarity between two vectors.
@@ -230,16 +217,16 @@ pub fn msd(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/msd_similarity.md")]
-pub fn msd_similarity(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
-    1.0 / (msd(x, y) + 1.0)
+pub fn msd_similarity(u: &[f32], v: &[f32]) -> f32 {
+    1.0 / (msd(u, v) + 1.0)
 }
 
 /// # Spearman correlation
 /// Function to calculate the Spearman correlation coefficient between two vectors.
 ///
 /// ## Parameters:
-/// * `x`: The first vector.
-/// * `y`: The second vector.
+/// * `u`: The first vector.
+/// * `v`: The second vector.
 ///
 /// ## Returns:
 /// * The Spearman correlation coefficient between the vectors.
@@ -250,13 +237,13 @@ pub fn msd_similarity(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/spearman_correlation.md")]
-pub fn spearman_correlation(x: &Vec<f32>, y: &Vec<f32>) -> f32 {
-    let n = x.len() as f32;
-    1.0 - (6.0 * squared_diff_sum(&spearman_rank(x), &spearman_rank(y)))
+pub fn spearman_correlation(u: &[f32], v: &[f32]) -> f32 {
+    let n = u.len() as f32;
+    1.0 - (6.0 * squared_diff_sum(&spearman_rank(u), &spearman_rank(v)))
         / (n * (n.powi(2) - 1.0))
 }
 
-fn spearman_rank(x: &Vec<f32>) -> Vec<f32> {
+fn spearman_rank(x: &[f32]) -> Vec<f32> {
     argsort(&argsort(x))
 }
 
@@ -264,8 +251,8 @@ fn spearman_rank(x: &Vec<f32>) -> Vec<f32> {
 /// Function to calculate the Minkowski distance between two vectors.
 ///
 /// ## Parameters:
-/// * `x`: The first vector.
-/// * `y`: The second vector.
+/// * `u`: The first vector.
+/// * `v`: The second vector.
 /// * `p`: The order of the Minkowski distance.
 ///
 /// ## Returns:
@@ -277,10 +264,10 @@ fn spearman_rank(x: &Vec<f32>) -> Vec<f32> {
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/minkowski_distance.md")]
-pub fn minkowski_distance(x: &[f32], y: &[f32], p: f32) -> f32 {
-    x.iter()
-        .zip(y.iter())
-        .map(|(&xi, &yi)| (xi - yi).abs().powf(p))
+pub fn minkowski_distance(u: &[f32], v: &[f32], p: f32) -> f32 {
+    u.iter()
+        .zip(v.iter())
+        .map(|(&ui, &vi)| (ui - vi).abs().powf(p))
         .sum::<f32>()
         .powf(1.0 / p)
 }
