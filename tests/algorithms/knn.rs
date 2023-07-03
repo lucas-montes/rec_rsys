@@ -1,5 +1,6 @@
-use rec_rsys::algorithms::knn::{cosine_knn, euclidean_knn};
+use rec_rsys::algorithms::knn::KNN;
 use rec_rsys::models::Item;
+use rec_rsys::similarity::SimilarityAlgos;
 
 fn setup() -> Vec<Item> {
     vec![
@@ -20,7 +21,8 @@ fn setup() -> Vec<Item> {
 fn test_cosine_knn() {
     let refs: Vec<Item> = setup();
     let new_item = &refs[0];
-    let result = cosine_knn(new_item.clone(), refs.clone(), 3);
+    let result =
+        KNN::new(new_item.clone(), refs.clone(), 3).result(SimilarityAlgos::Cosine);
     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
     assert_eq!(result[0].result, 1.0000001);
     assert_eq!(result[1].result, 0.9696546846691771);
@@ -31,7 +33,8 @@ fn test_cosine_knn() {
 fn test_euclidean_knn() {
     let refs: Vec<Item> = setup();
     let new_item = &refs[0];
-    let result = euclidean_knn(new_item.clone(), refs.clone(), 3);
+    let result =
+        KNN::new(new_item.clone(), refs.clone(), 3).result(SimilarityAlgos::Euclidean);
     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
     assert_eq!(result[0].result, 0.0);
     assert_eq!(result[1].result, 0.4905142);

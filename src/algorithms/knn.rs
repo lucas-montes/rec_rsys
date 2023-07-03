@@ -5,10 +5,32 @@ use crate::similarity::{
     pearson_baseline_similarity, pearson_correlation, spearman_correlation,
     SimilarityAlgos,
 };
-use crate::utils::sort_with_direction;
+use crate::utils::{sort_and_trucate, sort_with_direction};
 
 type ParamDistanceFunction = dyn Fn(&[f32], &[f32]) -> f32;
 
+/// # KNN
+/// K-nearest neighbors (KNN) is a machine learning algorithm used for classification and regression. It predicts the class or value of a new data point based on the majority class or average value of its k nearest neighbors in the feature space.
+///
+/// ## Parameters:
+/// * new_item: The new item for which the algorithm will predict a result.
+/// * references: The reference items used for comparison and prediction.
+/// * k: The number of nearest neighbors to consider in the prediction.
+///
+/// ## Returns:
+/// * A vector of items representing the predicted results.
+///
+/// ## Examples:
+/// ```
+/// let new_item = Item { values: [1, 2, 3] };
+/// let references = vec![ Item { values: [4, 5, 6] }, Item { values: [7, 8, 9] }, Item { values: [10, 11, 12] },  ];
+/// let k = 2;
+/// let knn = KNN::new(new_item, references, k);
+/// let result = knn.result(SimilarityAlgos::Cosine);
+/// println!("{:?}", result);
+/// ```
+///
+#[doc = include_str!("../../docs/algorithms/knn.md")]
 pub struct KNN {
     new_item: Item,
     references: Vec<Item>,
@@ -23,8 +45,15 @@ impl KNN {
             k,
         }
     }
-    pub fn vectors_comparaison(self, algo: SimilarityAlgos) -> Vec<Item> {
-        let (formula, reverse) = KNN::get_formula(algo);
+    /// Performs the KNN prediction based on the specified similarity algorithm.
+    ///
+    /// ## Parameters:
+    /// * `algorithm`: The similarity algorithm to use for calculating distances.
+    ///
+    /// ## Returns:
+    /// * A vector of items representing the predicted results.
+    pub fn result(&self, algorithm: SimilarityAlgos) -> Vec<Item> {
+        let (formula, reverse) = KNN::get_formula(algorithm);
         let mut best_matches: Vec<Item> = Vec::new();
         self.references.iter().for_each(|item| {
             let cloned_item = item.clone();
@@ -34,8 +63,16 @@ impl KNN {
 
         sort_and_trucate(best_matches, reverse, self.k)
     }
-    fn get_formula(algo: SimilarityAlgos) -> (&'static ParamDistanceFunction, bool) {
-        match algo {
+
+    /// Retrieves the distance formula and reverse flag for the specified similarity algorithm.
+    ///
+    /// ## Parameters:
+    /// * `algorithm`: The similarity algorithm.
+    ///
+    /// ## Returns:
+    /// * A tuple containing the distance formula function and a flag indicating if the results should be reversed.
+    fn get_formula(algorithm: SimilarityAlgos) -> (&'static ParamDistanceFunction, bool) {
+        match algorithm {
             SimilarityAlgos::Cosine => (&cosine_similarity, true),
             SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
             SimilarityAlgos::Euclidean => (&euclidean_distance, false),
@@ -43,80 +80,5 @@ impl KNN {
             SimilarityAlgos::Spearman => (&spearman_correlation, true),
             SimilarityAlgos::MSD => (&msd_similarity, true),
         }
-    }
-}
-
-/// KNN algorithm using the euclidean distance
-pub fn euclidean_knn(new_item: Item, references: Vec<Item>, k: u8) -> Vec<Item> {
-    knn(new_item, references, k, euclidean_distance, false)
-}
-
-/// KNN algorithm using the cosine similarity
-pub fn cosine_knn(new_item: Item, references: Vec<Item>, k: u8) -> Vec<Item> {
-    knn(new_item, references, k, cosine_similarity, true)
-}
-
-fn knn(
-    new_input: Item,
-    mut references: Vec<Item>,
-    k: u8,
-    formula: impl Fn(&[f32], &[f32]) -> f32,
-    reverse: bool,
-) -> Vec<Item> {
-    references
-        .iter_mut()
-        .for_each(|item| item.result = formula(&new_input.values, &item.values));
-
-    sort_and_trucate(references, reverse, k)
-}
-
-fn sort_and_trucate(mut best_matches: Vec<Item>, reverse: bool, k: u8) -> Vec<Item> {
-    sort_with_direction(
-        &mut best_matches,
-        |item_a, item_b| item_a.result.total_cmp(&item_b.result),
-        reverse,
-    );
-    best_matches.truncate(k as usize);
-    best_matches
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::models::Item;
-
-    fn mock(_: &[f32], m1: &[f32]) -> f32 {
-        m1[0]
-    }
-
-    #[test]
-    fn test_knn() {
-        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], Some(1.0));
-        let item2 =
-            Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], Some(0.33));
-        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], Some(0.0));
-
-        assert_eq!(
-            knn(
-                item1.clone(),
-                vec![item1.clone(), item2.clone(), item3.clone()],
-                6,
-                mock,
-                true
-            ),
-            vec![item2, item1, item3]
-        );
-    }
-
-    #[test]
-    fn test_sort_and_trucate() {
-        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], Some(1.0));
-        let item2 =
-            Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], Some(0.33));
-        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], Some(0.0));
-        assert_eq!(
-            sort_and_trucate(vec![item1.clone(), item2.clone(), item3], true, 2),
-            vec![item1, item2]
-        );
     }
 }

@@ -10,14 +10,15 @@ A recommender system toolkit with more maths functions. Currently it's only used
 - [ ] Fix possible errors in formulas
 - [ ] Add tests for each formula to be sure that it's correct
 - [ ] Normalize documentation so is the same everywhere
-- [ ] Create two types of docs. One in separated .md file with extense explanation and math examples. And the second one more for "code use"
+- [X] Create two types of docs. One in separated .md file with extense explanation and math examples. And the second one more for "code use"
 - [ ] Fix typos
-- [ ] Create a trait for the similarities
-- [ ] Share this trait with the struct representing Items and Users
+- [ ] Add benches for the formulas and overall functions
 
 2.- Nice to have:
 - [ ] Add more docs in .md related
 - [ ] Add tests in the docs
+- [ ] Normalize the results. Either 0 or 1 should represent 100% of similarity depending of the formula
+- [ ] Convert the results into structs with more information
 - [ ] Improve the code snippets. (The title can be the method's name)
 
 3.- Final steps:
@@ -31,6 +32,7 @@ A recommender system toolkit with more maths functions. Currently it's only used
 - [ ] Save data and results
 - [ ] Create some sort of "cache" to avoid multiples recalculations
 - [ ] Use ndarrays of some sort of efficient sci-library
+- [ ] Compare the performance and results between Generic types, f32 and f64.
 
 ## How to:
 - *Docs structure :*
@@ -51,17 +53,17 @@ A recommender system toolkit with more maths functions. Currently it's only used
 pub fn example(){}
 ```
 In the folder docs/ create a new .md file with the mathematical formula, explanation and examples if necessary.
-```rust
-/// # [Name of the concept]
-/// 
-/// ## Explanation:
-/// [Explanation of the mathematical concept]
-/// 
-/// ## Formula:
-/// $$ [Mathematical formula in raw katex format] $$
-///
-/// ### Where:
-/// * [Definition of each component of the formula]
+```markdown
+# [Name of the concept]
+
+## Explanation:
+[Explanation of the mathematical concept]
+
+## Formula:
+$$ [Mathematical formula in raw katex format] $$
+
+### Where:
+* [Definition of each component of the formula]
 ```
 - *Order :*
 <br>Keep the related concepts together
