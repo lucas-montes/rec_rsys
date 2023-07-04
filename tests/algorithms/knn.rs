@@ -25,7 +25,7 @@ fn test_cosine_knn() {
         KNN::new(new_item.clone(), refs.clone(), 3).result(SimilarityAlgos::Cosine);
     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
     assert_eq!(result[0].result, 1.0000001);
-    assert_eq!(result[1].result, 0.9696546846691771);
+    assert_eq!(result[1].result, 0.969_654_7);
     assert_eq!(result[2].result, 0.94337976);
 }
 

@@ -133,32 +133,26 @@ mod tests {
     #[test]
     fn test_dot() {
         assert_eq!(
-            dot(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
+            dot(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
             2557.0,
         );
     }
 
     #[test]
     fn test_euclidean_norm() {
-        assert_eq!(
-            euclidean_norm(&vec![3.0, 45.0, 7.0, 2.0]),
-            45.68369512200168,
-        );
+        assert_eq!(euclidean_norm(&[3.0, 45.0, 7.0, 2.0]), 45.683_697,);
     }
 
     #[test]
     fn test_squared_diff_sum() {
         assert_eq!(
-            squared_diff_sum(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
+            squared_diff_sum(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
             287.0,
         );
     }
 
     #[test]
     fn test_argsort() {
-        assert_eq!(
-            argsort(&vec![3.0, 45.0, 7.0, 2.0]),
-            vec![3.0, 0.0, 2.0, 1.0],
-        );
+        assert_eq!(argsort(&[3.0, 45.0, 7.0, 2.0]), vec![3.0, 0.0, 2.0, 1.0],);
     }
 }

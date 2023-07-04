@@ -170,23 +170,20 @@ mod tests {
 
     #[test]
     fn test_variance() {
-        assert_eq!(variance(&vec![1.0, 2.0, 3.0, 4.0, 5.0]), 2.0);
+        assert_eq!(variance(&[1.0, 2.0, 3.0, 4.0, 5.0]), 2.0);
     }
 
     #[test]
     fn test_covariance() {
         assert_eq!(
-            covariance(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            453.3333333333333,
+            covariance(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
+            453.333_34,
         );
     }
 
     #[test]
     fn test_standard_deviation() {
-        assert_eq!(
-            standard_deviation(&vec![3.0, 45.0, 7.0, 2.0]),
-            17.851820635442202,
-        );
+        assert_eq!(standard_deviation(&[3.0, 45.0, 7.0, 2.0]), 17.851_82,);
     }
 
     // #[test]

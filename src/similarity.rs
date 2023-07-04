@@ -280,54 +280,51 @@ mod tests {
     fn test_jaccard_similarity() {
         let set_a: HashSet<&i8> = [3, 45, 7, 2].iter().collect();
         let set_b: HashSet<&i8> = [2, 54, 13, 15].iter().collect();
-        assert_eq!(jaccard_similarity(&set_a, &set_b), 0.14285714285714285);
+        assert_eq!(jaccard_similarity(&set_a, &set_b), 0.142_857_15);
     }
 
     #[test]
     fn test_cosine_similarity() {
         assert_eq!(
-            cosine_similarity(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.9722842517123499,
+            cosine_similarity(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
+            0.972_284_26,
         );
     }
 
     #[test]
     fn test_euclidean_distance() {
         assert_eq!(
-            euclidean_distance(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            16.941074346097416,
+            euclidean_distance(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
+            16.941_074,
         );
     }
 
     #[test]
     fn test_pearson_correlation() {
         assert_eq!(
-            pearson_correlation(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.9675213315629456,
+            pearson_correlation(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
+            0.967_521_3,
         );
     }
 
     #[test]
     fn test_exponential_decay_similarity() {
         assert_eq!(
-            exponential_decay_similarity(23.5, 44.33333333, 10.0),
+            exponential_decay_similarity(23.5, 44.333_332, 10.0),
             0.12451448,
         );
     }
 
     #[test]
     fn test_msd() {
-        assert_eq!(
-            msd(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            71.75,
-        );
+        assert_eq!(msd(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]), 71.75,);
     }
 
     #[test]
     fn test_msd_similarity() {
         assert_eq!(
-            msd_similarity(&vec![3.0, 45.0, 7.0, 2.0], &vec![2.0, 54.0, 13.0, 15.0]),
-            0.013745704467353952,
+            msd_similarity(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
+            0.013_745_705,
         );
     }
 
@@ -335,8 +332,8 @@ mod tests {
     fn test_pearson_baseline_similarity() {
         assert_eq!(
             pearson_baseline_similarity(
-                &vec![3.0, 45.0, 7.0, 2.0],
-                &vec![2.0, 54.0, 13.0, 15.0],
+                &[3.0, 45.0, 7.0, 2.0],
+                &[2.0, 54.0, 13.0, 15.0],
                 3.2
             ),
             0.46815547,
@@ -346,10 +343,7 @@ mod tests {
     #[test]
     fn test_spearman_correlation() {
         assert_eq!(
-            spearman_correlation(
-                &vec![3.0, 45.0, 7.0, 2.0],
-                &vec![2.0, 54.0, 13.0, 15.0]
-            ),
+            spearman_correlation(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0]),
             0.39999998,
         );
     }
@@ -357,7 +351,7 @@ mod tests {
     #[test]
     fn test_spearman_rank() {
         assert_eq!(
-            spearman_rank(&vec![3.0, 45.0, 7.0, 2.0]),
+            spearman_rank(&[3.0, 45.0, 7.0, 2.0]),
             vec![1.0, 3.0, 2.0, 0.0],
         );
     }
@@ -365,12 +359,8 @@ mod tests {
     #[test]
     fn test_minkowski_distance() {
         assert_eq!(
-            minkowski_distance(
-                &vec![3.0, 45.0, 7.0, 2.0],
-                &vec![2.0, 54.0, 13.0, 15.0],
-                2.1,
-            ),
-            16.566132683373674,
+            minkowski_distance(&[3.0, 45.0, 7.0, 2.0], &[2.0, 54.0, 13.0, 15.0], 2.1,),
+            16.566_133,
         );
     }
 }

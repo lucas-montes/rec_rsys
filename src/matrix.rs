@@ -244,8 +244,8 @@ mod tests {
     fn test_subtract_vector_from_matrix() {
         assert_eq!(
             subtract_vector_from_matrix(
-                &vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]],
-                &vec![0.5, 1.0, 1.5],
+                &[vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]],
+                &[0.5, 1.0, 1.5],
             ),
             vec![vec![0.5, 1.0, 1.5], vec![3.5, 4.0, 4.5]]
         );
