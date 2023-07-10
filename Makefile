@@ -1,5 +1,4 @@
 check:
-	cargo fix
 	cargo test
 	cargo bench
 	cargo clippy
