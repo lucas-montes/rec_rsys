@@ -1,8 +1,9 @@
 check:
 	cargo test
 	cargo bench
-	cargo clippy
-	cargo publish --dry-run
+	cargo clippy --all-targets -- -D warnings
+	cargo fmt --all -- --check
+	cargo publish --dry-run --allow-dirty
 
 publish:
 	make check
