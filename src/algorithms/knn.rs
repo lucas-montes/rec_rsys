@@ -22,7 +22,7 @@ type ParamDistanceFunction = dyn Fn(&[f32], &[f32]) -> f32;
 ///
 /// ## Examples:
 /// ```
-/// use rec_rsys::{algorithms::KNN, models::Item, similarity::SimilarityAlgos};
+/// use rec_rsys::{algorithms::knn::KNN, models::Item, similarity::SimilarityAlgos};
 /// let new_item = Item { id: 1, values: vec![1.0, 2.0, 3.0], result: f32::NAN };
 /// let references = vec![ Item { id: 2, values: vec![4.0, 5.0, 6.0], result: f32::NAN }, Item { id: 3, values: vec![7.0, 8.0, 9.0], result: f32::NAN }, Item { id: 4, values: vec![10.0, 11.0, 12.0], result: f32::NAN } ];
 /// let k = 2;
