@@ -1,13 +1,8 @@
-test:
-	cargo test
-
-bench:
-	cargo bench
-
 check:
 	cargo fix
-	make test
-	make bench
+	cargo test
+	cargo bench
+	cargo clippy
 	cargo publish --dry-run
 
 publish:

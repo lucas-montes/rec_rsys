@@ -38,6 +38,7 @@ pprof = { version = "0.11.0", features = ["flamegraph", "criterion"], optional =
 [[bench]]
 name = "transpose"
 harness = false
+path = "benches/transpose"
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex.html" ]

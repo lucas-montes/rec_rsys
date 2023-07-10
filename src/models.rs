@@ -26,7 +26,7 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn default() -> Self {
+    fn default() -> Self {
         Item {
             id: 0,
             values: vec![0.0],
