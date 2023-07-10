@@ -1,5 +1,5 @@
 //! Place to store all the models used to calculate
-
+use async_trait::async_trait;
 /// Generic model to save the results
 // Similarity struct: used to store the result of the similarities calculation
 // struct Result {
@@ -26,6 +26,14 @@ pub struct Item {
 }
 
 impl Item {
+    pub fn default() -> Self {
+        Item {
+            id: 0,
+            values: vec![0.0],
+            result: f32::NAN,
+        }
+    }
+
     /// New
     pub fn new(id: u32, values: Vec<f32>, result: Option<f32>) -> Self {
         Item {
@@ -63,6 +71,13 @@ pub trait ItemAdapter {
     fn to_item(&self) -> Item;
     fn create_values(&self) -> Vec<f32>;
     fn get_references(&self) -> Vec<Item>;
+}
+
+#[async_trait]
+pub trait AsyncItemAdapter {
+    async fn to_item(&self) -> Item;
+    async fn create_values(&self) -> Vec<f32>;
+    async fn get_references(&self) -> Vec<Item>;
 }
 
 pub fn one_hot_encode(labels: &[&str]) -> HashMap<String, Vec<f32>> {
