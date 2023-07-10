@@ -22,5 +22,5 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Run cargo bench iai
-        run: cargo bench iai --all
+      - name: Run cargo bench
+        run: cargo bench --all
