@@ -2,7 +2,7 @@
 //!
 
 use crate::models::Item;
-
+use std::simd::{Simd, f32x64};
 /// # Dot product
 /// Calculates the dot product between two vectors.
 ///
@@ -13,6 +13,8 @@ use crate::models::Item;
 /// ## Returns:
 /// The dot product of the two vectors.
 pub fn dot(x: &[f32], y: &[f32]) -> f32 {
+    let v = f32x64::from_array(x);
+    //let (v, w) = (Simd::from(x), Simd::from(y));
     x.iter().zip(y.iter()).map(|(&x, &y)| x * y).sum()
 }
 

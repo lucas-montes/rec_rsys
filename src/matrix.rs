@@ -9,12 +9,6 @@ pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
     let cols: usize = matrix[0].len();
 
     if cols < 90 {
-        // This for loop is faster some times
-        // let mut transposed: Vec<Vec<T>> = Vec::with_capacity(cols);
-        // for j in 0..cols {
-        //     transposed.push(matrix.iter().map(|row| row[j].clone()).collect());
-        // }
-        // return transposed;
         return (0..cols)
             .map(|j: usize| matrix.iter().map(|row: &Vec<T>| row[j].clone()).collect())
             .collect();
@@ -164,21 +158,7 @@ pub fn subtract_vector_from_matrix(matrix: &[Vec<f32>], vector: &[f32]) -> Vec<V
 /// let matrix = X;
 /// (matrix)
 ///
-/// ## Explanation:
-/// The eigenvalues represent scalar values associated with a square matrix.
-/// They provide insight into the matrix's structural properties and transformations.
-///
-/// ## Formula:
-/// $$AV =  \lambda V$$
-///
-/// ### Where:
-/// * `$\lambda$`: Is the eigenvalue
-/// * `$A$`: Is the matrix
 pub fn get_eigenvalues(matrix: &[Vec<f32>]) -> Vec<i32> {
-    // Check if the matrix is square
-    if matrix.iter().any(|row| row.len() != matrix.len()) {
-        panic!("Input matrix is not square");
-    }
     let _indentity_matrix: Vec<Vec<f32>> = vec![vec![0.0; matrix.len()]; matrix.len()];
     for (index, row) in matrix.iter().enumerate() {
         for (index2, value) in row.iter().enumerate() {
@@ -228,16 +208,103 @@ pub fn get_eigenvectors(_matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
     todo!()
 }
 
+pub fn get_determinant(matrix: &[Vec<f64>]) -> f64 {
+    println!("matrix {:?}", matrix);
+    match matrix.len() {
+        1 => matrix[0][0],
+        2 => matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0],
+        3 => laplace_extension(matrix),
+        _ => 0.0,
+    }
+}
+
+fn laplace_extension(matrix: &[Vec<f64>]) -> f64 {
+    if matrix.len() == 1 {
+        return matrix[0][0];
+    }
+    let mut det = 0.0;
+    for col in 1..matrix.len() {
+        let submatrix = create_submatrix(matrix, col);
+        let sign = (-1.0 as f64).powi(col as i32);
+        let submatrix_det = get_determinant(&submatrix);
+        det += matrix[0][col] * submatrix_det * sign;
+    }
+    det
+}
+
+fn create_submatrix(matrix: &[Vec<f64>], j: usize) -> Vec<Vec<f64>> {
+    let mut submatrix: Vec<Vec<f64>> = Vec::new();
+    for row in 1..matrix.len() {
+        let submatrix_row = matrix[row][j..matrix.len()].to_vec();
+        submatrix.push(submatrix_row);
+    }
+    submatrix
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_get_eigenvalues() {
+    fn test_get_determinant_1x1() {
+        assert_eq!(get_determinant(&[vec![2.]]), 2.0,);
+    }
+
+    #[test]
+    fn test_get_determinant_2x2() {
+        assert_eq!(get_determinant(&[vec![2., -1.], vec![4., 3.]]), 10.0,);
+    }
+
+    #[test]
+    fn test_get_determinant_3x3() {
+        let matrix = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 9.0],
+        ];
+        assert_eq!(get_determinant(&matrix), 10.0,);
+    }
+
+    #[test]
+    fn test_create_submatrix() {
+        let matrix = vec![
+            vec![1.0, 2.0, 3.0, 1.0],
+            vec![4.0, 5.0, 6.0, 4.0],
+            vec![7.0, 8.0, 9.0, 7.0],
+            vec![4.0, 5.0, 6.0, 4.0],
+        ];
         assert_eq!(
-            get_eigenvalues(&[vec![2.0, 2.0], vec![5.0, -1.0]]),
-            vec![5, -1]
+            create_submatrix(&matrix, 1),
+            vec![
+                vec![5.0, 6.0, 4.0],
+                vec![8.0, 9.0, 7.0],
+                vec![5.0, 6.0, 4.0]
+            ],
         );
+        let matrix2 = vec![
+            vec![5.0, 6.0, 4.0],
+            vec![8.0, 9.0, 7.0],
+            vec![5.0, 6.0, 4.0],
+        ];
+        assert_eq!(
+            create_submatrix(&matrix2, 1),
+            vec![vec![9.0, 7.0], vec![6.0, 4.0]],
+        );
+    }
+
+    #[test]
+    fn test_laplace_extension() {
+        let matrix = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 9.0],
+        ];
+        assert_eq!(laplace_extension(&matrix), -9.51619735392994e-16,);
+    }
+
+    #[test]
+    fn test_get_eigenvalues() {
+        assert_eq!(get_eigenvalues(&[vec![2., -1.], vec![4., 3.]]), vec![5, -1]);
     }
 
     #[test]

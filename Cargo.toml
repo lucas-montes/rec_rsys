@@ -36,10 +36,17 @@ async-trait = "0.1.71"
 pprof = { version = "0.11.0", features = ["flamegraph", "criterion"], optional = true}
 
 [[bench]]
-name = "transpose"
+name = "cosine"
 harness = false
-path = "benches/transpose.rs"
+path = "benches/cosine.rs"
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex.html" ]
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
 

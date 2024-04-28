@@ -12,4 +12,21 @@
 /// ```
 ///
 #[doc = include_str!("../docs/algorithms/svd.md")]
-pub fn svd() {}
+pub fn svd(matrix: Vec<Vec<f32>>) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_svd() {
+        let matrix = vec![
+            vec![1.0, 2.0, 3.0],
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 9.0],
+        ];
+        assert_eq!(
+     svd(matrix),
+    ,);
+    }
+}

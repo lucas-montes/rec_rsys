@@ -140,10 +140,10 @@ fn main() {
 - [ ] Normalize documentation so is the same everywhere
 - [X] Create two types of docs. One in separated .md file with extense explanation and math examples. And the second one more for "code use"
 - [ ] Fix typos
-- [ ] Add benches for the formulas and overall functions
 
 2.- Nice to have:
 - [ ] Add more docs in .md related
+- [ ] Add benches for the formulas and overall functions
 - [ ] Add tests in the docs
 - [ ] Normalize the results. Either 0 or 1 should represent 100% of similarity depending of the formula
 - [ ] Convert the results into structs with more information

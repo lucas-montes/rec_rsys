@@ -49,7 +49,7 @@ impl KNN {
     /// Performs the KNN prediction based on the specified similarity algorithm.
     ///
     /// ## Parameters:
-    /// * `algorithm`: The similarity algorithm to use for calculating distances.
+    /// * `algorithm`: The similarity algorithm to calculate distances.
     ///
     /// ## Returns:
     /// * A vector of items representing the predicted results.
