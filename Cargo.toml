@@ -11,6 +11,7 @@ keywords = ["recommender-system", "machine-learning"]
 repository = "https://github.com/lucas-montes/rec_rsys"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+build = "build.rs"
 
 [features]
 full = []
@@ -38,7 +39,12 @@ pprof = { version = "0.11.0", features = ["flamegraph", "criterion"], optional =
 [[bench]]
 name = "cosine"
 harness = false
-path = "benches/cosine.rs"
+[[bench]]
+name = "transpose"
+harness = false
+[[bench]]
+name = "knn"
+harness = false
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex.html" ]

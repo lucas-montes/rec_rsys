@@ -19,21 +19,6 @@ pub fn transpose<T: Clone + Send + Sync>(matrix: &[Vec<T>]) -> Vec<Vec<T>> {
         .collect()
 }
 
-/// Transpose a matrix using f32 values
-pub fn transpose_32(matrix: &[Vec<f32>]) -> Vec<Vec<f32>> {
-    let cols: usize = matrix[0].len();
-
-    if cols < 90 {
-        return (0..cols)
-            .map(|j: usize| matrix.iter().map(|row: &Vec<f32>| row[j]).collect())
-            .collect();
-    }
-    (0..cols)
-        .into_par_iter()
-        .map(|j: usize| matrix.iter().map(|row: &Vec<f32>| row[j]).collect())
-        .collect()
-}
-
 /// Calculate the mean of a matrix using f32 values
 pub fn mean(matrix: &[Vec<f32>]) -> f32 {
     let total_elements = matrix.len() * matrix[0].len();

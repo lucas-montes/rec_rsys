@@ -1,5 +1,6 @@
 //! Place to store all the models used to calculate
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 /// Generic model to save the results
 // Similarity struct: used to store the result of the similarities calculation
 // struct Result {
@@ -13,7 +14,7 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 
 /// Generic model to perform calculations
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Item {
     /// Identifier
     pub id: u32,

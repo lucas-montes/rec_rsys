@@ -105,7 +105,7 @@ pub struct Recommendation {
 
 fn generate_recommendations(id: u32, num_recommendations: u8) -> Vec<Recommendation> {
         let company = Company::get(id);
-        Self::calculate_recommendations(company.to_item(), company.get_references(), num_recommendations)
+        calculate_recommendations(company.to_item(), company.get_references(), num_recommendations)
     }
 
 fn calculate_recommendations(

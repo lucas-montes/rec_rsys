@@ -2,7 +2,6 @@
 //!
 
 use crate::models::Item;
-use std::simd::{Simd, f32x64};
 /// # Dot product
 /// Calculates the dot product between two vectors.
 ///
@@ -13,8 +12,6 @@ use std::simd::{Simd, f32x64};
 /// ## Returns:
 /// The dot product of the two vectors.
 pub fn dot(x: &[f32], y: &[f32]) -> f32 {
-    let v = f32x64::from_array(x);
-    //let (v, w) = (Simd::from(x), Simd::from(y));
     x.iter().zip(y.iter()).map(|(&x, &y)| x * y).sum()
 }
 
@@ -92,13 +89,17 @@ where
     }
 }
 
-pub fn sort_and_trucate(mut best_matches: Vec<Item>, reverse: bool, k: u8) -> Vec<Item> {
+pub fn sort_and_trucate(
+    mut best_matches: Vec<Item>,
+    reverse: bool,
+    k: usize,
+) -> Vec<Item> {
     sort_with_direction(
         &mut best_matches,
         |item_a, item_b| item_a.result.total_cmp(&item_b.result),
         reverse,
     );
-    best_matches.truncate(k as usize);
+    best_matches.truncate(k);
     best_matches
 }
 

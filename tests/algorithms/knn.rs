@@ -21,8 +21,9 @@ fn setup() -> Vec<Item> {
 fn test_cosine_knn() {
     let refs: Vec<Item> = setup();
     let new_item = &refs[0];
-    let result =
-        KNN::new(new_item.clone(), refs.clone(), 3).result(SimilarityAlgos::Cosine);
+    let result = KNN::new(new_item.clone(), refs.clone())
+        .set_num_neighbors(3)
+        .result();
     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
     assert_eq!(result[0].result, 1.0000001);
     assert_eq!(result[1].result, 0.969_654_7);
@@ -33,8 +34,10 @@ fn test_cosine_knn() {
 fn test_euclidean_knn() {
     let refs: Vec<Item> = setup();
     let new_item = &refs[0];
-    let result =
-        KNN::new(new_item.clone(), refs.clone(), 3).result(SimilarityAlgos::Euclidean);
+    let result = KNN::new(new_item.clone(), refs.clone())
+        .set_num_neighbors(3)
+        .set_algorithm(SimilarityAlgos::Euclidean)
+        .result();
     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
     assert_eq!(result[0].result, 0.0);
     assert_eq!(result[1].result, 0.4905142);
