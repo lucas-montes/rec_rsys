@@ -1,5 +1,7 @@
 //! # A collection of statistical functions
 //!
+use num_traits::{Float, FromPrimitive};
+
 use super::utils::local_sort;
 
 /// # Mean
@@ -12,8 +14,12 @@ use super::utils::local_sort;
 /// * The mean value of the data.
 ///
 #[doc = include_str!("../docs/statistics/mean.md")]
-pub fn mean(data: &[f32]) -> f32 {
-    data.iter().sum::<f32>() / data.len() as f32
+pub fn mean<A>(data: &[A]) -> A
+where
+    A: Float + FromPrimitive + for<'a> std::iter::Sum<&'a A>,
+{
+    data.iter().sum::<A>()
+        / A::from_usize(data.len()).expect("Something wrong with the mean")
 }
 
 /// # Quartiles
@@ -26,10 +32,12 @@ pub fn mean(data: &[f32]) -> f32 {
 /// * A tuple (Q1, Q3) containing the first and third quartiles of the data.
 ///
 #[doc = include_str!("../docs/statistics/quartiles.md")]
-pub fn quartiles(data: &mut [f32]) -> (f32, f32) {
+pub fn quartiles<A: Float + FromPrimitive + num_traits::float::TotalOrder>(
+    data: &mut [A],
+) -> (A, A) {
     local_sort(data);
-    let q1: f32 = percentile_of_sorted(data, 25_f32);
-    let q3: f32 = percentile_of_sorted(data, 75_f32);
+    let q1 = percentile_of_sorted(data, A::from(100).unwrap());
+    let q3 = percentile_of_sorted(data, A::from(100).unwrap());
     (q1, q3)
 }
 
@@ -43,17 +51,19 @@ pub fn quartiles(data: &mut [f32]) -> (f32, f32) {
 /// * The value at the specified percentile.
 ///
 #[doc = include_str!("../docs/statistics/percentile_of_sorted.md")]
-fn percentile_of_sorted(sorted_samples: &[f32], pct: f32) -> f32 {
+fn percentile_of_sorted<A: Float + FromPrimitive>(sorted_samples: &[A], pct: A) -> A {
     let sorted_len = sorted_samples.len();
+    let hundred = A::from(100).unwrap();
     if sorted_len == 1 {
         return sorted_samples[0];
     }
-    if pct == 100_f32 {
+    if pct == hundred {
         return sorted_samples[sorted_len - 1];
     }
-    let rank = (pct / 100_f32) * (sorted_len - 1) as f32;
+
+    let rank = (pct / hundred) * A::from(sorted_len - 1).unwrap();
     let lrank = rank.floor();
-    let n = lrank as usize;
+    let n = lrank.to_usize().unwrap();
     let lo = sorted_samples[n];
     lo + (sorted_samples[n + 1] - lo) * (rank - lrank)
 }

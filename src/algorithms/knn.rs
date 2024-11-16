@@ -2,12 +2,12 @@
 use crate::models::Item;
 use crate::similarity::{
     adjusted_cosine_similarity, cosine_similarity, euclidean_distance, msd_similarity,
-    pearson_baseline_similarity, pearson_correlation, spearman_correlation,
+    pearson_baseline_similarity, pearson_correlation_uncentered, spearman_correlation,
     SimilarityAlgos,
 };
 use crate::utils::{sort_and_trucate, sort_with_direction};
-
-type ParamDistanceFunction = dyn Fn(&[f32], &[f32]) -> f32;
+use ndarray::{Array1, Array2};
+use num_traits::Float;
 
 /// # KNN
 /// K-nearest neighbors (KNN) is a machine learning algorithm used for classification and regression. It predicts the class or value of a new data point based on the majority class or average value of its k nearest neighbors in the feature space.
@@ -31,64 +31,66 @@ type ParamDistanceFunction = dyn Fn(&[f32], &[f32]) -> f32;
 /// ```
 ///
 #[doc = include_str!("../../docs/algorithms/knn.md")]
-pub struct KNN {
-    query_item: Item,
-    neighbors_pool: Vec<Item>,
-    algorithm: SimilarityAlgos,
-    num_neighbors: usize,
+pub struct KNearestNeighbors<F> {
+    neighbors_pool: Array2<F>,
+    params: KNearestNeighborsParams<F>,
 }
 
-impl KNN {
-    pub fn new(query_item: Item, neighbors_pool: Vec<Item>) -> Self {
-        let num_neighbors = neighbors_pool.len();
-        KNN {
-            query_item,
+impl<F: Float> KNearestNeighbors<F> {
+    pub fn new(neighbors_pool: Array2<F>) -> Self {
+        Self {
             neighbors_pool,
-            algorithm: SimilarityAlgos::Cosine,
-            num_neighbors,
+            params: KNearestNeighborsParams::default(),
         }
     }
     pub fn set_algorithm(mut self, algorithm: SimilarityAlgos) -> Self {
-        self.algorithm = algorithm;
+        self.params.algorithm = algorithm;
         self
     }
     pub fn set_num_neighbors(mut self, num_neighbors: usize) -> Self {
-        self.num_neighbors = num_neighbors;
+        self.params.num_neighbors = num_neighbors;
         self
     }
-    /// Performs the KNN prediction based on the specified similarity algorithm.
-    ///
-    /// ## Returns:
-    /// * A vector of items representing the predicted results.
-    pub fn result(&self) -> Vec<Item> {
-        let (formula, reverse) = KNN::get_formula(&self.algorithm);
-        let mut best_matches: Vec<Item> = Vec::new();
-        self.neighbors_pool.iter().for_each(|item| {
-            let cloned_item = item.clone();
-            best_matches
-                .push(cloned_item.result(formula(&self.query_item.values, &item.values)))
-        });
-
-        sort_and_trucate(best_matches, reverse, self.num_neighbors)
+    pub fn set_early_return_threshold(
+        mut self,
+        early_return_threshold: Option<F>,
+    ) -> Self {
+        self.params.early_return_threshold = early_return_threshold;
+        self
     }
+}
 
-    /// Retrieves the distance formula and reverse flag for the specified similarity algorithm.
-    ///
-    /// ## Parameters:
-    /// * `algorithm`: The similarity algorithm.
-    ///
-    /// ## Returns:
-    /// * A tuple containing the distance formula function and a flag indicating if the results should be reversed.
-    fn get_formula(
-        algorithm: &SimilarityAlgos,
-    ) -> (&'static ParamDistanceFunction, bool) {
-        match algorithm {
-            SimilarityAlgos::Cosine => (&cosine_similarity, true),
-            SimilarityAlgos::AdjustedCosine => (&adjusted_cosine_similarity, true),
-            SimilarityAlgos::Euclidean => (&euclidean_distance, false),
-            SimilarityAlgos::PearsonCorrelation => (&pearson_correlation, true),
-            SimilarityAlgos::Spearman => (&spearman_correlation, true),
-            SimilarityAlgos::MSD => (&msd_similarity, true),
+pub struct KNearestNeighborsParams<F> {
+    algorithm: SimilarityAlgos,
+    num_neighbors: usize,
+    early_return_threshold: Option<F>,
+}
+
+type ParamDistanceFunction<F> = dyn Fn(&Array1<F>, &Array1<F>) -> F;
+
+impl<F: Float> KNearestNeighborsParams<F> {
+    fn default() -> Self {
+        let threshold = F::from(0.999).unwrap();
+        Self {
+            algorithm: SimilarityAlgos::default(),
+            num_neighbors: 10,
+            early_return_threshold: Some(threshold),
         }
     }
+
+    // fn get_formula(&self) -> (ParamDistanceFunction<F>, bool) {
+    //     match self.algorithm {
+    //         SimilarityAlgos::Cosine => (cosine_similarity, true),
+    //         SimilarityAlgos::AdjustedCosine => (adjusted_cosine_similarity, true),
+    //         SimilarityAlgos::Euclidean => (euclidean_distance, false),
+    //         SimilarityAlgos::PearsonCorrelation => (pearson_correlation_uncentered, true),
+    //         SimilarityAlgos::Spearman => (spearman_correlation, true),
+    //         SimilarityAlgos::MSD => (msd_similarity, true),
+    //     }
+    // }
+}
+
+pub struct KNNResult {
+    query_item: Item,
+    result: SimilarityAlgos,
 }

@@ -44,9 +44,8 @@ impl Item {
         }
     }
 
-    pub fn result(mut self, r: f32) -> Self {
+    pub fn set_result(&mut self, r: f32) {
         self.result = r;
-        self
     }
 }
 
