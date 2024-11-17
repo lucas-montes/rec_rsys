@@ -70,13 +70,14 @@ impl<F: Numeric> KNearestNeighbors<F> {
     pub fn predict_nd(&self, index: usize) -> KNearestNeighborsResult<F> {
         let query = self.dataset.get_row(index);
 
-        let r = euclidean_distance_nd(&query, &self.dataset.records());
+        let results: BinaryHeap<ItemResult<F>> =
+            euclidean_distance_nd(&query, &self.dataset.records())
+                .iter()
+                .enumerate()
+                .map(|(i, &v)| ItemResult::new(v, i))
+                .collect();
 
-        let d = BinaryHeap::from_iter(
-            r.iter().enumerate().map(|(i, &v)| ItemResult::new(v, i)),
-        );
-
-        KNearestNeighborsResult { results: d }
+        KNearestNeighborsResult { results }
     }
 
     pub fn predict(&self, index: usize) -> KNearestNeighborsResult<F> {

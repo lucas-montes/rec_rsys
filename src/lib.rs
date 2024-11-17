@@ -11,7 +11,6 @@
 pub mod accuracy;
 pub mod algorithms;
 pub mod benchmarks;
-pub mod matrix;
 pub mod models;
 pub mod similarity;
 pub mod statistics;

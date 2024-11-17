@@ -1,15 +1,10 @@
-//! # A collection of tools to compute similarities
-//!
-use ndarray::linalg::general_mat_vec_mul;
 use ndarray::{
     array, azip, Array, Array1, Array2, ArrayView, ArrayView1, ArrayView2, Axis, Zip,
 };
-use ndarray_linalg::Norm;
-use num_traits::float::FloatCore;
-use num_traits::{Float, FromPrimitive, Pow};
+use num_traits::{float::FloatCore, Float, FromPrimitive, Pow};
 
-use super::statistics::mean;
 use super::utils::{argsort, euclidean_norm, squared_diff_sum};
+
 use std::collections::HashSet;
 use std::ops::{Mul, Sub};
 
@@ -75,6 +70,14 @@ pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f32 {
 ///
 #[doc = include_str!("../docs/norms/cosine_similarity.md")]
 pub fn cosine_similarity<F: Float + FromPrimitive + std::iter::Sum + 'static>(
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
+) -> F {
+    // u.l2_norm();
+    u.dot(v) / (euclidean_norm(u) * euclidean_norm(v))
+}
+
+pub fn cosine_similarity_nd<F: Float + FromPrimitive + std::iter::Sum + 'static>(
     u: &ArrayView1<F>,
     v: &ArrayView1<F>,
 ) -> F {
