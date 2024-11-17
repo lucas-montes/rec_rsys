@@ -1,5 +1,8 @@
 use ndarray::array;
-use rec_rsys::{algorithms::knn::KNearestNeighbors, models::DatasetBase};
+use rec_rsys::{
+    algorithms::knn::KNearestNeighbors, models::DatasetBase,
+    similarity::SimilarityAlgorithm,
+};
 
 fn setup() -> DatasetBase<f32> {
     let records = array![
@@ -20,25 +23,40 @@ fn setup() -> DatasetBase<f32> {
 #[test]
 fn test_default_knn() {
     let dataset = setup();
-    let result = KNearestNeighbors::new(dataset).predict(0).results();
-    println!("{:?}", result);
-
-    assert_eq!(result.len(), 10);
-    assert_eq!(result[0].value(), 1.0000001);
+    let model = KNearestNeighbors::new(dataset);
+    let result = model.predict(0).results();
+    assert_eq!(result.len(), 4);
+    assert_eq!(result[0].value(), 1.000_000_1);
     assert_eq!(result[1].value(), 0.969_654_7);
-    assert_eq!(result[2].value(), 0.94337976);
+    assert_eq!(result[2].value(), 0.943_379_76);
+    assert_eq!(result[3].value(), 0.930_861_53);
+    assert_eq!(result[0].index(), 0);
+    assert_eq!(result[1].index(), 1);
+    assert_eq!(result[2].index(), 9);
+    assert_eq!(result[3].index(), 4);
+
+    let result = model.predict(1).results();
+    assert_eq!(result.len(), 3);
+    assert_eq!(result[0].value(), 1.0);
+    assert_eq!(result[1].value(), 0.969_654_7);
+    assert_eq!(result[0].index(), 1);
+    assert_eq!(result[1].index(), 0);
 }
 
-// #[test]
-// fn test_euclidean_knn() {
-//     let refs: Vec<Item> = setup();
-//     let new_item = &refs[0];
-//     let result = KNN::new(new_item.clone(), refs.clone())
-//         .set_num_neighbors(3)
-//         .set_algorithm(SimilarityAlgos::Euclidean)
-//         .result();
-//     assert_eq!(result, vec![new_item, &refs[1], &refs[9]]);
-//     assert_eq!(result[0].result, 0.0);
-//     assert_eq!(result[1].result, 0.4905142);
-//     assert_eq!(result[2].result, 0.5744563);
-// }
+#[test]
+fn test_euclidean_knn() {
+    let dataset = setup();
+    let model = KNearestNeighbors::new(dataset)
+        .set_num_neighbors(10)
+        .set_early_return_threshold(None)
+        .set_algorithm(SimilarityAlgorithm::EuclideanDistance);
+    let result = model.predict(0).results();
+    assert_eq!(result.len(), 10);
+    assert_eq!(result[0].value(), 1.0);
+    assert_eq!(result[1].value(), 0.50948584);
+    assert_eq!(result[2].value(), 0.42554373);
+    assert_eq!(result[0].index(), 0);
+    assert_eq!(result[1].index(), 1);
+    assert_eq!(result[2].index(), 9);
+    assert_eq!(result[3].index(), 4);
+}

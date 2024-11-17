@@ -22,11 +22,19 @@ use num_traits::{Float, FromPrimitive};
 ///
 /// ## Examples:
 /// ```
-/// use rec_rsys::{algorithms::knn::KNN, models::Item, similarity::SimilarityAlgos};
-/// let new_item = Item { id: 1, values: vec![1.0, 2.0, 3.0], result: f32::NAN };
-/// let references = vec![ Item { id: 2, values: vec![4.0, 5.0, 6.0], result: f32::NAN }, Item { id: 3, values: vec![7.0, 8.0, 9.0], result: f32::NAN }, Item { id: 4, values: vec![10.0, 11.0, 12.0], result: f32::NAN } ];
-/// let knn = KNN::new(new_item, references);
-/// let result = knn.result();
+/// use ndarray::array;
+/// use rec_rsys::{
+///     algorithms::knn::KNearestNeighbors, models::DatasetBase,
+///     similarity::SimilarityAlgorithm,
+/// };
+/// let records = array![
+///     [0.9193, 0.9097, 0.4990, 0.3292, 0.8811],
+///     [0.9826, 0.9977, 0.6924, 0.7509, 0.7644],
+///     [0.4817, 0.7548, 0.1974, 0.2229, 0.1256],
+/// ];
+/// let dataset = DatasetBase::new(records);
+/// let model = KNearestNeighbors::new(dataset);
+/// let result = model.predict(0).results();
 /// println!("{:?}", result);
 /// ```
 ///
@@ -59,19 +67,20 @@ impl<F: Numeric> KNearestNeighbors<F> {
         self
     }
 
-    pub fn predict(&self, item: usize) -> KNearestNeighborsResult<F> {
+    pub fn predict(&self, index: usize) -> KNearestNeighborsResult<F> {
         let similarity_fn = self.params.get_similarity_algorithm();
-        let query = self.dataset.get_row(item);
+        let query = self.dataset.get_row(index);
 
         let mut results = KNearestNeighborsResult::new(self.params.num_neighbors);
-        if let Some(t) = self.params.early_return_threshold {
+        if let Some(threshold) = self.params.early_return_threshold {
             for (i, q) in self.dataset.rows() {
                 let result = similarity_fn(&query, &q);
-                results.push(result, i);
-
-                if i % self.params.num_neighbors == 0 && results.is_full(&t) {
-                    break;
-                }
+                if result > threshold {
+                    results.push(result, i);
+                    if results.is_full() {
+                        break;
+                    }
+                };
             }
         } else {
             for (i, q) in self.dataset.rows() {
@@ -99,18 +108,12 @@ impl<F: Numeric> KNearestNeighborsResult<F> {
         self.results.push(ItemResult::new(result, index));
     }
 
-    fn is_full(&mut self, threshold: &F) -> bool {
-        if self.results.capacity() == self.results.len() {
-            self.results.retain(|i| &i.value() > threshold);
-            return false;
-        }
-        true
+    fn is_full(&self) -> bool {
+        self.results.capacity() == self.results.len()
     }
 
     pub fn results(self) -> Vec<ItemResult<F>> {
-        let mut results = self.results.into_sorted_vec();
-        results.reverse();
-        results
+        self.results.into_sorted_vec()
     }
 }
 

@@ -121,7 +121,7 @@ pub fn euclidean_distance<F: Float + FromPrimitive + std::iter::Sum>(
     u: &ArrayView1<F>,
     v: &ArrayView1<F>,
 ) -> F {
-    squared_diff_sum(u, v).sqrt()
+    F::one() - squared_diff_sum(u, v).sqrt()
 }
 
 /// # Exponential Decay Similarity
@@ -350,10 +350,34 @@ mod tests {
     fn test_cosine_similarity() {
         assert_eq!(
             cosine_similarity(
-                &array![3.0, 45.0, 7.0, 2.0].view(),
-                &array![2.0, 54.0, 13.0, 15.0].view()
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view()
             ),
-            0.9722842517123499,
+            1.0,
+        );
+
+        assert_eq!(
+            cosine_similarity(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.2193, 0.897, 0.0990, 0.6292, 0.4811].view()
+            ),
+            0.8304276291570247,
+        );
+
+        assert_eq!(
+            cosine_similarity(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.186, 0.1, 0.9921, 0.9230, 0.2231].view()
+            ),
+            0.5402234118064821,
+        );
+
+        assert_eq!(
+            cosine_similarity(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.000186, 0.001, 0.9921, 0.009, 0.0999].view()
+            ),
+            0.3514731882730471,
         );
     }
 
@@ -361,15 +385,71 @@ mod tests {
     fn test_euclidean_distance() {
         assert_eq!(
             euclidean_distance(
-                &array![3.0, 45.0, 7.0, 2.0].view(),
-                &array![2.0, 54.0, 13.0, 15.0].view()
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view()
             ),
-            16.941074346097416,
+            1.0,
+        );
+
+        assert_eq!(
+            euclidean_distance(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.9193, 0.897, 0.4990, 0.6292, 0.4811].view()
+            ),
+            0.49983873600607576,
+        );
+
+        assert_eq!(
+            euclidean_distance(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.186, 0.1, 0.9921, 0.9230, 0.2231].view()
+            ),
+            -0.49065523512313214,
+        );
+
+        assert_eq!(
+            euclidean_distance(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.000186, 0.001, 0.9921, 0.009, 0.0999].view()
+            ),
+            -0.6206342354140246,
         );
     }
 
     #[test]
     fn test_pearson_correlation_uncentered() {
+        assert_eq!(
+            pearson_correlation_uncentered(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view()
+            ),
+            1.0,
+        );
+
+        assert_eq!(
+            pearson_correlation_uncentered(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.2193, 0.897, 0.0990, 0.6292, 0.4811].view()
+            ),
+            0.1488489756851059,
+        );
+
+        assert_eq!(
+            pearson_correlation_uncentered(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.186, 0.1, 0.9921, 0.9230, 0.2231].view()
+            ),
+            -0.9584233637522426,
+        );
+
+        assert_eq!(
+            pearson_correlation_uncentered(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![0.000186, 0.001, 0.9921, 0.009, 0.0999].view()
+            ),
+            -0.4045362933721447,
+        );
+
         assert_eq!(
             pearson_correlation_uncentered(
                 &array![3.0, 45.0, 7.0, 2.0].view(),

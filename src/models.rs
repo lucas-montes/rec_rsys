@@ -1,12 +1,11 @@
 //! Place to store all the models used to calculate
-use async_trait::async_trait;
 use ndarray::{iter::Lanes, Array1, Array2, ArrayView1, Axis, Dim};
 use num_traits::{Float, FromPrimitive};
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap, iter::Sum};
 
-pub trait Numeric: Float + FromPrimitive + Sum + 'static {}
-impl<T> Numeric for T where T: Float + FromPrimitive + Sum + 'static {}
+pub trait Numeric: Float + FromPrimitive + Sum + 'static + std::fmt::Debug {}
+impl<T> Numeric for T where T: Float + FromPrimitive + Sum + 'static + std::fmt::Debug {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct DatasetBase<F> {
