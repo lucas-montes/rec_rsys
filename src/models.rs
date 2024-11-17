@@ -1,5 +1,5 @@
 //! Place to store all the models used to calculate
-use ndarray::{iter::Lanes, Array1, Array2, ArrayView1, Axis, Dim};
+use ndarray::{iter::Lanes, Array1, Array2, ArrayView1, ArrayView2, Axis, Dim};
 use num_traits::{Float, FromPrimitive};
 use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap, iter::Sum};
@@ -21,6 +21,10 @@ impl<F: Numeric> DatasetBase<F> {
             weights: None,
             feature_names: Vec::new(),
         }
+    }
+
+    pub fn records(&self) -> ArrayView2<F> {
+        self.records.view()
     }
 
     pub fn get_row(&self, index: usize) -> ArrayView1<F> {

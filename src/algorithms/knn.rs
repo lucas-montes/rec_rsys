@@ -4,7 +4,7 @@ use std::collections::BinaryHeap;
 use std::iter::Sum;
 
 use crate::models::{DatasetBase, ItemResult, Numeric};
-use crate::similarity::SimilarityAlgorithm;
+use crate::similarity::{euclidean_distance_nd, SimilarityAlgorithm};
 use crate::utils::sort_with_direction;
 use ndarray::{s, Array1, Array2, ArrayView1, Axis};
 use num_traits::{Float, FromPrimitive};
@@ -65,6 +65,18 @@ impl<F: Numeric> KNearestNeighbors<F> {
     ) -> Self {
         self.params.early_return_threshold = early_return_threshold;
         self
+    }
+
+    pub fn predict_nd(&self, index: usize) -> KNearestNeighborsResult<F> {
+        let query = self.dataset.get_row(index);
+
+        let r = euclidean_distance_nd(&query, &self.dataset.records());
+
+        let d = BinaryHeap::from_iter(
+            r.iter().enumerate().map(|(i, &v)| ItemResult::new(v, i)),
+        );
+
+        KNearestNeighborsResult { results: d }
     }
 
     pub fn predict(&self, index: usize) -> KNearestNeighborsResult<F> {

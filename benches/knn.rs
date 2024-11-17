@@ -5,6 +5,7 @@ use ndarray_rand::rand_distr::Uniform;
 use ndarray_rand::RandomExt;
 use rec_rsys::{
     algorithms::knn::KNearestNeighbors, benchmarks::config, models::DatasetBase,
+    similarity::SimilarityAlgorithm,
 };
 
 fn bench(c: &mut Criterion) {
@@ -18,31 +19,43 @@ fn bench(c: &mut Criterion) {
     ] {
         let records = Array::random((neighbors_pool, vector_size), Uniform::new(0., 1.));
         let dataset = DatasetBase::new(records);
-        let model = KNearestNeighbors::new(dataset).set_num_neighbors(num_neighbors);
 
-        bench.bench_function(
-            BenchmarkId::new(
-                "fast_exit",
-                format!(
-                    "vector_size{}-neighbors_pool{}-num_neighbors{}",
-                    vector_size, neighbors_pool, num_neighbors
+        for algorithm in [
+            SimilarityAlgorithm::AdjustedCosineSimilarity,
+            SimilarityAlgorithm::EuclideanDistance,
+            SimilarityAlgorithm::CosineSimilarity,
+            SimilarityAlgorithm::PearsonCorrelation,
+            SimilarityAlgorithm::SpearmanCorrelation,
+            SimilarityAlgorithm::MSDSimilarity,
+        ] {
+            let model = KNearestNeighbors::new(dataset.clone())
+                .set_num_neighbors(num_neighbors)
+                .set_algorithm(algorithm.clone());
+
+            bench.bench_function(
+                BenchmarkId::new(
+                    "fast_exit",
+                    format!(
+                        "vector_size{}-neighbors_pool{}-num_neighbors{}-algorithm{:?}",
+                        vector_size, neighbors_pool, num_neighbors, algorithm
+                    ),
                 ),
-            ),
-            |b| b.iter(|| model.predict(0)),
-        );
+                |b| b.iter(|| model.predict(0)),
+            );
 
-        let model = model.set_early_return_threshold(None);
+            let model = model.set_early_return_threshold(None);
 
-        bench.bench_function(
-            BenchmarkId::new(
-                "all_calculations",
-                format!(
-                    "vector_size{}-neighbors_pool{}-num_neighbors{}",
-                    vector_size, neighbors_pool, num_neighbors
+            bench.bench_function(
+                BenchmarkId::new(
+                    "all_calculations",
+                    format!(
+                        "vector_size{}-neighbors_pool{}-num_neighbors{}-algorithm{:?}",
+                        vector_size, neighbors_pool, num_neighbors, algorithm
+                    ),
                 ),
-            ),
-            |b| b.iter(|| model.predict(0)),
-        );
+                |b| b.iter(|| model.predict(0)),
+            );
+        }
     }
     bench.finish();
 }

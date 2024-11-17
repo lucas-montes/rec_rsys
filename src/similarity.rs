@@ -1,6 +1,10 @@
 //! # A collection of tools to compute similarities
 //!
-use ndarray::{azip, Array1, ArrayView1, Zip};
+use ndarray::linalg::general_mat_vec_mul;
+use ndarray::{
+    array, azip, Array, Array1, Array2, ArrayView, ArrayView1, ArrayView2, Axis, Zip,
+};
+use ndarray_linalg::Norm;
 use num_traits::float::FloatCore;
 use num_traits::{Float, FromPrimitive, Pow};
 
@@ -9,7 +13,7 @@ use super::utils::{argsort, euclidean_norm, squared_diff_sum};
 use std::collections::HashSet;
 use std::ops::{Mul, Sub};
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone, Copy)]
 pub enum SimilarityAlgorithm {
     EuclideanDistance,
     #[default]
@@ -124,6 +128,15 @@ pub fn euclidean_distance<F: Float + FromPrimitive + std::iter::Sum>(
     F::one() - squared_diff_sum(u, v).sqrt()
 }
 
+pub fn euclidean_distance_nd<F: Float + FromPrimitive + std::iter::Sum + 'static>(
+    query: &ArrayView1<F>,
+    matrix: &ArrayView2<F>,
+) -> Array1<F> {
+    // Broadcast the query over all rows of the matrix and calculate squared differences
+    let diff = matrix - &query.view().insert_axis(Axis(0));
+    // Sum along rows and compute square root
+    Array::from_elem((1,), F::one()) - diff.map_axis(Axis(1), |row| row.dot(&row).sqrt())
+}
 /// # Exponential Decay Similarity
 /// Calculates the exponential decay similarity between two values based on a decay rate.
 ///
@@ -378,6 +391,21 @@ mod tests {
                 &array![0.000186, 0.001, 0.9921, 0.009, 0.0999].view()
             ),
             0.3514731882730471,
+        );
+    }
+
+    #[test]
+    fn test_euclidean_distance_nd() {
+        assert_eq!(
+            euclidean_distance_nd(
+                &array![0.9193, 0.9097, 0.4990, 0.3292, 0.8811].view(),
+                &array![
+                    [0.9193, 0.9097, 0.4990, 0.3292, 0.8811],
+                    [0.9193, 0.897, 0.4990, 0.6292, 0.4811]
+                ]
+                .view()
+            ),
+            array![1.0, 0.49983873600607576]
         );
     }
 

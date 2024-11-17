@@ -1,5 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use rec_rsys::benchmarks::{config, testing_tools::create_vector};
+use ndarray_rand::rand_distr::Uniform;
+use ndarray_rand::RandomExt;
+use rec_rsys::benchmarks::config;
 use rec_rsys::similarity::{
     cosine_similarity, euclidean_distance, pearson_correlation_uncentered,
     spearman_correlation,
@@ -11,10 +13,9 @@ fn bench(c: &mut Criterion) {
     let mut bench = c.benchmark_group("similarity");
     config::set_default_benchmark_configs(&mut bench);
     for x in [100, 250, 1000, 10_000, 50_000, 100_000, 250_000] {
-        let m = create_vector(x, -1.0, 1.0);
-        let m2 = create_vector(x, -1.0, 1.0);
-        let a = Array1::from_vec(m);
-        let a2 = Array1::from_vec(m2);
+        let dist = Uniform::new(0., 1.);
+        let a = Array1::random(x, dist);
+        let a2 = Array1::random(x, dist);
 
         bench.bench_function(
             BenchmarkId::new("pearson_correlation_uncentered", x),
