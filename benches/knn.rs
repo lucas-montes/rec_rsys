@@ -1,7 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 use rec_rsys::benchmarks::{config, testing_tools::create_vector};
-use rec_rsys::models::Item;
 
 fn knn_bench(c: &mut Criterion) {
     let mut bench = c.benchmark_group("knn");

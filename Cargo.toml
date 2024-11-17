@@ -23,7 +23,7 @@ benchmarks = ["criterion", "pprof"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-ndarray = "0.15.6"
+ndarray = { version ="0.15.6", features = ["blas"] }
 ndarray-linalg = "0.16.0"
 rand = "0.8.4"
 rand_distr = "0.4.2"

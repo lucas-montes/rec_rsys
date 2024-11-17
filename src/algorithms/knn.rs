@@ -1,13 +1,13 @@
 //! KNN
-use crate::models::Item;
-use crate::similarity::{
-    adjusted_cosine_similarity, cosine_similarity, euclidean_distance, msd_similarity,
-    pearson_baseline_similarity, pearson_correlation_uncentered, spearman_correlation,
-    SimilarityAlgos,
-};
-use crate::utils::{sort_and_trucate, sort_with_direction};
-use ndarray::{Array1, Array2};
-use num_traits::Float;
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
+use std::iter::Sum;
+
+use crate::models::{DatasetBase, ItemResult, Numeric};
+use crate::similarity::SimilarityAlgorithm;
+use crate::utils::sort_with_direction;
+use ndarray::{s, Array1, Array2, ArrayView1, Axis};
+use num_traits::{Float, FromPrimitive};
 
 /// # KNN
 /// K-nearest neighbors (KNN) is a machine learning algorithm used for classification and regression. It predicts the class or value of a new data point based on the majority class or average value of its k nearest neighbors in the feature space.
@@ -32,18 +32,18 @@ use num_traits::Float;
 ///
 #[doc = include_str!("../../docs/algorithms/knn.md")]
 pub struct KNearestNeighbors<F> {
-    neighbors_pool: Array2<F>,
+    dataset: DatasetBase<F>,
     params: KNearestNeighborsParams<F>,
 }
 
-impl<F: Float> KNearestNeighbors<F> {
-    pub fn new(neighbors_pool: Array2<F>) -> Self {
+impl<F: Numeric> KNearestNeighbors<F> {
+    pub fn new(dataset: DatasetBase<F>) -> Self {
         Self {
-            neighbors_pool,
+            dataset,
             params: KNearestNeighborsParams::default(),
         }
     }
-    pub fn set_algorithm(mut self, algorithm: SimilarityAlgos) -> Self {
+    pub fn set_algorithm(mut self, algorithm: SimilarityAlgorithm) -> Self {
         self.params.algorithm = algorithm;
         self
     }
@@ -58,39 +58,100 @@ impl<F: Float> KNearestNeighbors<F> {
         self.params.early_return_threshold = early_return_threshold;
         self
     }
+
+    pub fn predict(&self, item: usize) -> KNearestNeighborsResult<F> {
+        let similarity_fn = self.params.get_similarity_algorithm();
+        let query = self.dataset.get_row(item);
+
+        let mut results = KNearestNeighborsResult::new(self.params.num_neighbors);
+        if let Some(t) = self.params.early_return_threshold {
+            for (i, q) in self.dataset.rows() {
+                let result = similarity_fn(&query, &q);
+                results.push(result, i);
+
+                if i % self.params.num_neighbors == 0 && results.is_full(&t) {
+                    break;
+                }
+            }
+        } else {
+            for (i, q) in self.dataset.rows() {
+                let result = similarity_fn(&query, &q);
+                results.push(result, i);
+            }
+        };
+
+        results
+    }
+}
+
+pub struct KNearestNeighborsResult<F: Numeric> {
+    results: BinaryHeap<ItemResult<F>>,
+}
+
+impl<F: Numeric> KNearestNeighborsResult<F> {
+    fn new(size: usize) -> Self {
+        Self {
+            results: BinaryHeap::with_capacity(size + 1),
+        }
+    }
+
+    fn push(&mut self, result: F, index: usize) {
+        self.results.push(ItemResult::new(result, index));
+    }
+
+    fn is_full(&mut self, threshold: &F) -> bool {
+        if self.results.capacity() == self.results.len() {
+            self.results.retain(|i| &i.value() > threshold);
+            return false;
+        }
+        true
+    }
+
+    pub fn results(self) -> Vec<ItemResult<F>> {
+        let mut results = self.results.into_sorted_vec();
+        results.reverse();
+        results
+    }
 }
 
 pub struct KNearestNeighborsParams<F> {
-    algorithm: SimilarityAlgos,
+    algorithm: SimilarityAlgorithm,
     num_neighbors: usize,
     early_return_threshold: Option<F>,
 }
 
-type ParamDistanceFunction<F> = dyn Fn(&Array1<F>, &Array1<F>) -> F;
-
-impl<F: Float> KNearestNeighborsParams<F> {
+impl<F: Numeric> KNearestNeighborsParams<F> {
     fn default() -> Self {
-        let threshold = F::from(0.999).unwrap();
+        let threshold = F::from(0.93).unwrap();
         Self {
-            algorithm: SimilarityAlgos::default(),
+            algorithm: SimilarityAlgorithm::default(),
             num_neighbors: 10,
             early_return_threshold: Some(threshold),
         }
     }
 
-    // fn get_formula(&self) -> (ParamDistanceFunction<F>, bool) {
-    //     match self.algorithm {
-    //         SimilarityAlgos::Cosine => (cosine_similarity, true),
-    //         SimilarityAlgos::AdjustedCosine => (adjusted_cosine_similarity, true),
-    //         SimilarityAlgos::Euclidean => (euclidean_distance, false),
-    //         SimilarityAlgos::PearsonCorrelation => (pearson_correlation_uncentered, true),
-    //         SimilarityAlgos::Spearman => (spearman_correlation, true),
-    //         SimilarityAlgos::MSD => (msd_similarity, true),
-    //     }
-    // }
+    fn get_similarity_algorithm(
+        &self,
+    ) -> Box<dyn Fn(&ArrayView1<F>, &ArrayView1<F>) -> F> {
+        self.algorithm.get_function()
+    }
 }
 
-pub struct KNNResult {
-    query_item: Item,
-    result: SimilarityAlgos,
+#[cfg(test)]
+mod tests {
+    use ndarray::array;
+
+    use super::*;
+
+    #[test]
+    fn test_slices() {
+        let a: ndarray::ArrayBase<ndarray::OwnedRepr<f64>, ndarray::Dim<[usize; 2]>> =
+            array![[3.0, 45.0, 7.0, 2.0], [3.0, 20.0, 7.0, 2.0]];
+
+        let y: std::iter::Enumerate<
+            ndarray::iter::AxisIter<'_, f64, ndarray::Dim<[usize; 1]>>,
+        > = a.outer_iter().enumerate();
+
+        println!("{:?}", y);
+    }
 }

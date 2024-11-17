@@ -3,10 +3,8 @@
 
 use std::ops::Sub;
 
-use ndarray::Array1;
+use ndarray::{Array1, ArrayView1};
 use num_traits::{float::TotalOrder, Float, FromPrimitive};
-
-use crate::models::Item;
 
 /// # Euclidean norm
 /// Calculates the magnitude (Euclidean norm) of a vector.
@@ -16,14 +14,14 @@ use crate::models::Item;
 ///
 /// ## Returns:
 /// The magnitude of the vector.
-pub fn euclidean_norm<A: Float + FromPrimitive + std::iter::Sum>(x: &Array1<A>) -> A {
+pub fn euclidean_norm<A: Float + FromPrimitive + std::iter::Sum>(x: &ArrayView1<A>) -> A {
     x.iter().map(|&a| a * a).sum::<A>().sqrt()
 }
 
 /// TODO: docs
 pub fn squared_diff_sum<A: Float + FromPrimitive + std::iter::Sum>(
-    x: &Array1<A>,
-    y: &Array1<A>,
+    x: &ArrayView1<A>,
+    y: &ArrayView1<A>,
 ) -> A {
     x.iter()
         .zip(y.iter())
@@ -48,7 +46,7 @@ pub fn local_sort<A: Float + FromPrimitive + TotalOrder>(v: &mut [A]) {
 /// Perform an indirect sort along the given axis (-1).
 /// It returns an array of indices of the same shape as
 /// `vector` that index data along the given axis in sorted order.
-pub fn argsort<A: Float + FromPrimitive>(x: &Array1<A>) -> Array1<A> {
+pub fn argsort<A: Float + FromPrimitive>(x: &ArrayView1<A>) -> Array1<A> {
     let mut indexed_vector: Vec<(usize, &A)> = x.iter().enumerate().collect();
     indexed_vector.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     indexed_vector
@@ -88,15 +86,6 @@ where
     }
 }
 
-pub fn sort_and_trucate(best_matches: &mut Vec<Item>, reverse: bool, k: usize) {
-    sort_with_direction(
-        best_matches,
-        |item_a, item_b| item_a.result.total_cmp(&item_b.result),
-        reverse,
-    );
-    best_matches.truncate(k);
-}
-
 #[cfg(test)]
 mod tests {
     use ndarray::array;
@@ -118,20 +107,9 @@ mod tests {
     }
 
     #[test]
-    fn test_sort_and_trucate() {
-        let item1 = Item::new(1, vec![0.9193, 0.9097, 0.4990, 0.3292, 0.8811], Some(1.0));
-        let item2 =
-            Item::new(2, vec![0.9826, 0.9977, 0.6924, 0.7509, 0.7644], Some(0.33));
-        let item3 = Item::new(3, vec![0.4817, 0.7548, 0.1974, 0.2229, 0.1256], Some(0.0));
-        let mut initial = vec![item1.clone(), item2.clone(), item3];
-        sort_and_trucate(&mut initial, true, 2);
-        assert_eq!(initial, vec![item1, item2]);
-    }
-
-    #[test]
     fn test_euclidean_norm() {
         assert_eq!(
-            euclidean_norm(&array![3.0, 45.0, 7.0, 2.0]),
+            euclidean_norm(&array![3.0, 45.0, 7.0, 2.0].view()),
             45.68369512200168
         );
     }
@@ -140,8 +118,8 @@ mod tests {
     fn test_squared_diff_sum() {
         assert_eq!(
             squared_diff_sum(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0]
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
             ),
             287.0,
         );
@@ -150,7 +128,7 @@ mod tests {
     #[test]
     fn test_argsort() {
         assert_eq!(
-            argsort(&array![3.0, 45.0, 7.0, 2.0]),
+            argsort(&array![3.0, 45.0, 7.0, 2.0].view()),
             array![3.0, 0.0, 2.0, 1.0],
         );
     }

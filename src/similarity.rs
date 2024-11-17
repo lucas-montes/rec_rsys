@@ -1,6 +1,6 @@
 //! # A collection of tools to compute similarities
 //!
-use ndarray::{azip, Array1, Zip};
+use ndarray::{azip, Array1, ArrayView1, Zip};
 use num_traits::float::FloatCore;
 use num_traits::{Float, FromPrimitive, Pow};
 
@@ -10,14 +10,29 @@ use std::collections::HashSet;
 use std::ops::{Mul, Sub};
 
 #[derive(Default)]
-pub enum SimilarityAlgos {
-    Euclidean,
+pub enum SimilarityAlgorithm {
+    EuclideanDistance,
     #[default]
-    Cosine,
-    AdjustedCosine,
+    CosineSimilarity,
+    AdjustedCosineSimilarity,
     PearsonCorrelation,
-    Spearman,
-    MSD,
+    SpearmanCorrelation,
+    MSDSimilarity,
+}
+
+impl SimilarityAlgorithm {
+    pub fn get_function<F: Float + FromPrimitive + std::iter::Sum + 'static>(
+        &self,
+    ) -> Box<dyn Fn(&ArrayView1<F>, &ArrayView1<F>) -> F> {
+        match self {
+            Self::EuclideanDistance => Box::new(euclidean_distance),
+            Self::CosineSimilarity => Box::new(cosine_similarity),
+            Self::AdjustedCosineSimilarity => Box::new(adjusted_cosine_similarity),
+            Self::PearsonCorrelation => Box::new(pearson_correlation_uncentered),
+            Self::SpearmanCorrelation => Box::new(spearman_correlation),
+            Self::MSDSimilarity => Box::new(msd_similarity),
+        }
+    }
 }
 /// # Jaccard Similarity
 /// Calculated the Jaccard similarity between to sets.
@@ -56,8 +71,8 @@ pub fn jaccard_similarity(a: &HashSet<&i8>, b: &HashSet<&i8>) -> f32 {
 ///
 #[doc = include_str!("../docs/norms/cosine_similarity.md")]
 pub fn cosine_similarity<F: Float + FromPrimitive + std::iter::Sum + 'static>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     u.dot(v) / (euclidean_norm(u) * euclidean_norm(v))
 }
@@ -79,8 +94,8 @@ pub fn cosine_similarity<F: Float + FromPrimitive + std::iter::Sum + 'static>(
 ///
 #[doc = include_str!("../docs/similarity/adjusted_cosine_similarity.md")]
 pub fn adjusted_cosine_similarity<F: Float + FromPrimitive + std::iter::Sum + 'static>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     //TODO
     u.dot(v) / (euclidean_norm(u) * euclidean_norm(v))
@@ -103,8 +118,8 @@ pub fn adjusted_cosine_similarity<F: Float + FromPrimitive + std::iter::Sum + 's
 ///
 #[doc = include_str!("../docs/norms/euclidean_distance.md")]
 pub fn euclidean_distance<F: Float + FromPrimitive + std::iter::Sum>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     squared_diff_sum(u, v).sqrt()
 }
@@ -156,8 +171,8 @@ pub fn exponential_decay_similarity<F: Float + FromPrimitive>(
 ///
 #[doc = include_str!("../docs/similarity/pearson_correlation.md")]
 pub fn pearson_correlation_uncentered<F: Float + FromPrimitive>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     let mean_u = u.mean().unwrap();
     let mean_v = v.mean().unwrap();
@@ -196,8 +211,8 @@ pub fn pearson_correlation_uncentered<F: Float + FromPrimitive>(
 ///
 #[doc = include_str!("../docs/similarity/pearson_baseline_similarity.md")]
 pub fn pearson_baseline_similarity<F: Float + FromPrimitive>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
     shrinkage: F,
 ) -> F {
     let adjusted_intersection = F::from_usize(u.len().saturating_sub(1)).unwrap();
@@ -221,7 +236,10 @@ pub fn pearson_baseline_similarity<F: Float + FromPrimitive>(
 /// ```
 ///
 #[doc = include_str!("../docs/similarity/msd.md")]
-pub fn msd<F: Float + FromPrimitive + std::iter::Sum>(u: &Array1<F>, v: &Array1<F>) -> F {
+pub fn msd<F: Float + FromPrimitive + std::iter::Sum>(
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
+) -> F {
     squared_diff_sum(u, v) / F::from_usize(u.len()).unwrap()
 }
 
@@ -246,8 +264,8 @@ pub fn msd<F: Float + FromPrimitive + std::iter::Sum>(u: &Array1<F>, v: &Array1<
 ///
 #[doc = include_str!("../docs/similarity/msd_similarity.md")]
 pub fn msd_similarity<F: Float + FromPrimitive + std::iter::Sum>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     let i = F::from(1.0).unwrap();
     i / (msd(u, v) + i)
@@ -270,20 +288,20 @@ pub fn msd_similarity<F: Float + FromPrimitive + std::iter::Sum>(
 ///
 #[doc = include_str!("../docs/similarity/spearman_correlation.md")]
 pub fn spearman_correlation<F: Float + FromPrimitive + std::iter::Sum>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
 ) -> F {
     let n = F::from(u.len()).unwrap();
 
     let one = F::one();
     let six = F::from(6.0).unwrap();
 
-    one - (six * squared_diff_sum(&spearman_rank(u), &spearman_rank(v)))
+    one - (six * squared_diff_sum(&spearman_rank(u).view(), &spearman_rank(v).view()))
         / (n * (n.powi(2) - one))
 }
 
-fn spearman_rank<F: Float + FromPrimitive>(x: &Array1<F>) -> Array1<F> {
-    argsort(&argsort(x))
+fn spearman_rank<F: Float + FromPrimitive>(x: &ArrayView1<F>) -> Array1<F> {
+    argsort(&argsort(x).view())
 }
 
 /// # Minkowski distance
@@ -304,8 +322,8 @@ fn spearman_rank<F: Float + FromPrimitive>(x: &Array1<F>) -> Array1<F> {
 ///
 #[doc = include_str!("../docs/similarity/minkowski_distance.md")]
 pub fn minkowski_distance<F: Float + Clone + FromPrimitive + std::iter::Sum>(
-    u: &Array1<F>,
-    v: &Array1<F>,
+    u: &ArrayView1<F>,
+    v: &ArrayView1<F>,
     p: F,
 ) -> F {
     u.iter()
@@ -332,8 +350,8 @@ mod tests {
     fn test_cosine_similarity() {
         assert_eq!(
             cosine_similarity(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0]
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
             ),
             0.9722842517123499,
         );
@@ -343,8 +361,8 @@ mod tests {
     fn test_euclidean_distance() {
         assert_eq!(
             euclidean_distance(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0]
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
             ),
             16.941074346097416,
         );
@@ -354,8 +372,8 @@ mod tests {
     fn test_pearson_correlation_uncentered() {
         assert_eq!(
             pearson_correlation_uncentered(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0]
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
             ),
             0.9_675_213_315_629_456,
         );
@@ -372,7 +390,10 @@ mod tests {
     #[test]
     fn test_msd() {
         assert_eq!(
-            msd(&array![3.0, 45.0, 7.0, 2.0], &array![2.0, 54.0, 13.0, 15.0]),
+            msd(
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
+            ),
             71.75,
         );
     }
@@ -380,7 +401,10 @@ mod tests {
     #[test]
     fn test_msd_similarity() {
         assert_eq!(
-            msd_similarity(&array![3.0, 45.0, 7.0, 2.0], &array![2.0, 54.0, 13.0, 15.0]),
+            msd_similarity(
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
+            ),
             0.013745704467353952,
         );
     }
@@ -389,8 +413,8 @@ mod tests {
     fn test_pearson_baseline_similarity() {
         assert_eq!(
             pearson_baseline_similarity(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0],
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view(),
                 3.2
             ),
             0.46815548301432847,
@@ -401,8 +425,8 @@ mod tests {
     fn test_spearman_correlation() {
         assert_eq!(
             spearman_correlation(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0]
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view()
             ),
             0.4,
         );
@@ -411,7 +435,7 @@ mod tests {
     #[test]
     fn test_spearman_rank() {
         assert_eq!(
-            spearman_rank(&array![3.0, 45.0, 7.0, 2.0]),
+            spearman_rank(&array![3.0, 45.0, 7.0, 2.0].view()),
             array![1.0, 3.0, 2.0, 0.0],
         );
     }
@@ -420,8 +444,8 @@ mod tests {
     fn test_minkowski_distance() {
         assert_eq!(
             minkowski_distance(
-                &array![3.0, 45.0, 7.0, 2.0],
-                &array![2.0, 54.0, 13.0, 15.0],
+                &array![3.0, 45.0, 7.0, 2.0].view(),
+                &array![2.0, 54.0, 13.0, 15.0].view(),
                 2.1,
             ),
             16.566132683373674,

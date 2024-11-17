@@ -16,21 +16,28 @@ fn bench(c: &mut Criterion) {
         let a = Array1::from_vec(m);
         let a2 = Array1::from_vec(m2);
 
-        bench
-            .bench_function(BenchmarkId::new("pearson_correlation_uncentered", x), |b| {
-                b.iter(|| pearson_correlation_uncentered(black_box(&a), black_box(&a2)))
-            });
+        bench.bench_function(
+            BenchmarkId::new("pearson_correlation_uncentered", x),
+            |b| {
+                b.iter(|| {
+                    pearson_correlation_uncentered(
+                        black_box(&a.view()),
+                        black_box(&a2.view()),
+                    )
+                })
+            },
+        );
 
         bench.bench_function(BenchmarkId::new("spearman_correlation", x), |b| {
-            b.iter(|| spearman_correlation(black_box(&a), black_box(&a2)))
+            b.iter(|| spearman_correlation(black_box(&a.view()), black_box(&a2.view())))
         });
 
         bench.bench_function(BenchmarkId::new("cosine_similarity", x), |b| {
-            b.iter(|| cosine_similarity(black_box(&a), black_box(&a2)))
+            b.iter(|| cosine_similarity(black_box(&a.view()), black_box(&a2.view())))
         });
 
         bench.bench_function(BenchmarkId::new("euclidean_distance", x), |b| {
-            b.iter(|| euclidean_distance(black_box(&a), black_box(&a2)))
+            b.iter(|| euclidean_distance(black_box(&a.view()), black_box(&a2.view())))
         });
     }
     bench.finish();
