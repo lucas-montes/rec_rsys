@@ -1,4 +1,4 @@
-//! Place to store all the models used to calculate
+//! Structures used to manipulate and move data around.
 use ndarray::{iter::Lanes, Array1, Array2, ArrayView1, ArrayView2, Axis, Dim};
 use num_traits::{Float, FromPrimitive};
 use serde::{Deserialize, Serialize};

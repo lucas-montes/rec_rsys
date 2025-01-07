@@ -1,6 +1,6 @@
 [package]
 name = "rec_rsys"
-version = "1.0.0"
+version = "2.0.0"
 edition = "2021"
 authors = ["Lucas Montes <lluc23@hotmail.com>"]
 categories = ["algorithms", "mathematics"]
@@ -49,10 +49,6 @@ name = "utils"
 harness = false
 
 [[bench]]
-name = "transpose"
-harness = false
-
-[[bench]]
 name = "knn"
 harness = false
 
@@ -62,11 +58,4 @@ harness = false
 
 [package.metadata.docs.rs]
 rustdoc-args = [ "--html-in-header", "katex.html" ]
-
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = "symbols"
 
